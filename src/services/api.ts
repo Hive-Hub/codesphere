@@ -11,30 +11,38 @@ export const apiClient = axios.create({
   timeout: 60000, // 60 seconds to support Render free tier cold starts
 });
 
-// Request Interceptor: Attach bearer token dynamically depending on active role
+// Request Interceptor: Attach bearer token dynamically depending on active role & endpoint
 apiClient.interceptors.request.use(
   (config) => {
-    const activeRole = storage.getActiveRole();
-    if (activeRole === 'teacher') {
-      const teacherToken = storage.getTeacherToken();
-      if (teacherToken) {
-        config.headers.Authorization = `Bearer ${teacherToken}`;
-      }
-    } else if (activeRole === 'student') {
-      const studentToken = storage.getStudentToken();
-      if (studentToken) {
-        config.headers.Authorization = `Bearer ${studentToken}`;
-      }
-    } else {
-      // Fallback: Check if teacher token exists first, then student token
-      const tToken = storage.getTeacherToken();
-      const sToken = storage.getStudentToken();
-      if (tToken) {
-        config.headers.Authorization = `Bearer ${tToken}`;
-      } else if (sToken) {
-        config.headers.Authorization = `Bearer ${sToken}`;
-      }
+    // Public endpoints that must NOT send an Authorization header
+    const isPublicEndpoint =
+      config.url?.includes('/teacher/session/create') ||
+      config.url?.includes('/student/session/join') ||
+      config.url?.includes('/session/validate') ||
+      config.url?.includes('/health');
+
+    if (isPublicEndpoint) {
+      delete config.headers.Authorization;
+      return config;
     }
+
+    const activeRole = storage.getActiveRole();
+    let token: string | null = null;
+
+    if (activeRole === 'teacher') {
+      token = storage.getTeacherToken();
+    } else if (activeRole === 'student') {
+      token = storage.getStudentToken();
+    } else {
+      token = storage.getTeacherToken() || storage.getStudentToken();
+    }
+
+    if (token && token !== 'undefined' && token !== 'null' && token.trim().length > 10) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -60,7 +68,7 @@ apiClient.interceptors.response.use(
     if (isNetworkOrColdStart) {
       config._retryCount = (config._retryCount || 0) + 1;
       console.warn(`[Axios Cold Start Retry] Attempt ${config._retryCount} for ${config.url}`);
-      
+
       // Wait 2 seconds before retrying to let Render finish waking up
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return apiClient(config);

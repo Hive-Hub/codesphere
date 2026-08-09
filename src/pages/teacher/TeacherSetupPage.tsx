@@ -45,6 +45,7 @@ export const TeacherSetupPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
+      storage.clearSession();
       const res = await teacherApi.createSession(data);
       if (res.success && res.data) {
         const { teacher_token, session } = res.data;
