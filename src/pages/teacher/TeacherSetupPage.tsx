@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { teacherSetupSchema } from '../../utils/validation';
 import { TeacherSessionCreatePayload } from '../../types/teacher';
 import { teacherApi } from '../../services/teacherApi';
+import { apiClient } from '../../services/api';
 import { storage } from '../../utils/storage';
 import { useSessionStore } from '../../store/sessionStore';
 import { parseApiError } from '../../utils/errors';
 import { Header } from '../../components/common/Header';
-import { GraduationCap, ArrowRight, BookOpen, Layers, User, Mail, School, Building } from 'lucide-react';
+import { GraduationCap, ArrowRight, BookOpen, Layers, User, Mail, School, Building, Loader2 } from 'lucide-react';
 
 export const TeacherSetupPage: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { setSession, setActiveRole } = useSessionStore();
+
+  // Pre-warm Render backend on page load to eliminate cold start delay
+  useEffect(() => {
+    apiClient.get('/health').catch(() => {});
+  }, []);
 
   const {
     register,

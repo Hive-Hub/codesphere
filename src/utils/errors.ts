@@ -32,7 +32,7 @@ export function parseApiError(error: any): string {
   if (status === 429) {
     return 'Rate limit exceeded. Please wait a few seconds before retrying.';
   }
-  if (status === 503) {
+  if (status === 502 || status === 503 || status === 504) {
     return 'Service temporarily unavailable. Please try again in a moment.';
   }
 
@@ -58,6 +58,10 @@ export function parseApiError(error: any): string {
 
   if (error.response?.data?.message) {
     return error.response.data.message;
+  }
+
+  if (error.code === 'ECONNABORTED' || (error.message && error.message.includes('timeout'))) {
+    return 'Server connection timed out. Please try again.';
   }
 
   if (error.message) {

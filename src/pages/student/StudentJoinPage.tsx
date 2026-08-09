@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +6,7 @@ import { studentJoinSchema } from '../../utils/validation';
 import { StudentJoinPayload } from '../../types/student';
 import { studentApi } from '../../services/studentApi';
 import { sessionApi } from '../../services/sessionApi';
+import { apiClient } from '../../services/api';
 import { storage } from '../../utils/storage';
 import { useStudentStore } from '../../store/studentStore';
 import { useSessionStore } from '../../store/sessionStore';
@@ -24,6 +25,11 @@ export const StudentJoinPage: React.FC = () => {
 
   const { setStudentData } = useStudentStore();
   const { setSession, setActiveRole } = useSessionStore();
+
+  // Pre-warm Render backend on page load to eliminate cold start delay
+  useEffect(() => {
+    apiClient.get('/health').catch(() => {});
+  }, []);
 
   const {
     register,
