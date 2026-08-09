@@ -152,15 +152,15 @@ export const HomePage: React.FC = () => {
             
             {/* Left Column: Full Portrait Photo Display */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative group w-full max-w-sm">
+              <div className="relative group w-full max-w-md">
                 <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 rounded-3xl blur-lg opacity-40 group-hover:opacity-75 transition duration-500" />
-                <div className="relative rounded-3xl overflow-hidden border border-border/80 bg-surface-card shadow-2xl">
+                <div className="relative rounded-3xl overflow-hidden border border-border/80 bg-surface-card p-2.5 shadow-2xl space-y-3">
                   <img
                     src="/sekhar.jpg"
                     alt="Sekhar - B.Tech Data Science Student"
-                    className="w-full h-[460px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-auto max-h-[650px] object-contain rounded-2xl group-hover:scale-[1.01] transition-transform duration-500"
                   />
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/80 to-transparent p-6 space-y-1">
+                  <div className="p-4 bg-background/90 backdrop-blur-md rounded-2xl border border-border/60 space-y-1 text-left">
                     <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 block">Data Science & AI Developer</span>
                     <h3 className="text-2xl font-bold text-white">Sekhar</h3>
                     <p className="text-xs text-gray-400">B.Tech Student • Developer & Researcher</p>
