@@ -3,9 +3,10 @@ import { ApiResponse } from '../types/api';
 import { CodeRunPayload, CodeSavePayload, CompilerResult } from '../types/compiler';
 import { storage } from '../utils/storage';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://codesphere-backend-x1gl.onrender.com/api/v1';
+
 export const compilerApi = {
   runCode: async (sessionId: number, payload: CodeRunPayload): Promise<ApiResponse<CompilerResult>> => {
-    // Ensure student active role is set for Bearer token interceptor
     storage.setActiveRole('student');
 
     const formattedPayload = {
@@ -14,12 +15,26 @@ export const compilerApi = {
       stdin: payload.stdin || '',
     };
 
-    const res = await apiClient.post<ApiResponse<CompilerResult>>(
-      `/student/session/${sessionId}/code/run`,
-      formattedPayload
-    );
+    try {
+      const res = await apiClient.post<ApiResponse<CompilerResult>>(
+        `/student/session/${sessionId}/code/run`,
+        formattedPayload
+      );
+      return res.data;
+    } catch (axiosErr) {
+      console.warn('[compilerApi.runCode] Axios error, using native fetch fallback...', axiosErr);
+      const token = storage.getStudentToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
 
-    return res.data;
+      const response = await fetch(`${API_BASE_URL}/student/session/${sessionId}/code/run`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(formattedPayload),
+      });
+      const data = await response.json();
+      return data;
+    }
   },
 
   saveCode: async (sessionId: number, payload: CodeSavePayload): Promise<ApiResponse<{ version?: number; saved_at?: string; saved?: boolean; timestamp?: string }>> => {
@@ -30,11 +45,24 @@ export const compilerApi = {
       code: payload.code,
     };
 
-    const res = await apiClient.post<ApiResponse<{ version?: number; saved_at?: string; saved?: boolean; timestamp?: string }>>(
-      `/student/session/${sessionId}/code/save`,
-      formattedPayload
-    );
+    try {
+      const res = await apiClient.post<ApiResponse<{ version?: number; saved_at?: string; saved?: boolean; timestamp?: string }>>(
+        `/student/session/${sessionId}/code/save`,
+        formattedPayload
+      );
+      return res.data;
+    } catch (axiosErr) {
+      const token = storage.getStudentToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
 
-    return res.data;
+      const response = await fetch(`${API_BASE_URL}/student/session/${sessionId}/code/save`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(formattedPayload),
+      });
+      const data = await response.json();
+      return data;
+    }
   },
 };
