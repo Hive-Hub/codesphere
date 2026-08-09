@@ -20,7 +20,11 @@ import {
   Github,
   Layers,
   Clock,
-  BookOpen
+  BookOpen,
+  User,
+  Brain,
+  Shield,
+  Database
 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -138,13 +142,117 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* ========================================================================= */}
-        {/* ABOUT ME & PLATFORM VISION SECTION                                       */}
+        {/* DEDICATED "ABOUT ME" SECTION FOR SEKHAR (WITH FULL PROFILE PHOTO)        */}
         {/* ========================================================================= */}
-        <section className="w-full bg-surface-card/50 border-y border-border/60 py-16 px-4">
+        <section className="w-full bg-gradient-to-b from-surface-card/80 to-background border-t border-border/80 py-20 px-4 relative overflow-hidden">
+          {/* Decorative Glow */}
+          <div className="absolute top-1/2 left-10 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Column: Full Portrait Photo Display */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group w-full max-w-sm">
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 rounded-3xl blur-lg opacity-40 group-hover:opacity-75 transition duration-500" />
+                <div className="relative rounded-3xl overflow-hidden border border-border/80 bg-surface-card shadow-2xl">
+                  <img
+                    src="/sekhar.jpg"
+                    alt="Sekhar - B.Tech Data Science Student"
+                    className="w-full h-[460px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/80 to-transparent p-6 space-y-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 block">Data Science & AI Developer</span>
+                    <h3 className="text-2xl font-bold text-white">Sekhar</h3>
+                    <p className="text-xs text-gray-400">B.Tech Student • Developer & Researcher</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Sekhar's Bio & Tech Focus */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+                <User className="w-3.5 h-3.5" />
+                <span>Developer Profile</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+                About Me
+              </h2>
+
+              <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
+                Hi, I’m <strong className="text-white font-bold">Sekhar</strong>, a B.Tech Data Science student passionate about{' '}
+                <strong className="text-indigo-300 font-bold">Artificial Intelligence, software development, cybersecurity, and building real-world projects</strong>.
+                I enjoy learning by creating, experimenting with new technologies, and turning ideas into practical solutions.
+              </p>
+
+              <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+                I’m currently focused on improving my skills in{' '}
+                <strong className="text-emerald-300 font-bold">Python, C, web development, AI, and data science</strong>, while continuously exploring new areas of technology.
+              </p>
+
+              {/* Core Skill Pills */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
+                  <Brain className="w-5 h-5 text-indigo-400 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Artificial Intelligence</h4>
+                    <span className="text-[10px] text-gray-400">ML & Deep Learning</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
+                  <Code2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Software Dev</h4>
+                    <span className="text-[10px] text-gray-400">Python, C & Web</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
+                  <Shield className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Cybersecurity</h4>
+                    <span className="text-[10px] text-gray-400">Secure Systems</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
+                  <Database className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Data Science</h4>
+                    <span className="text-[10px] text-gray-400">B.Tech Specialization</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
+                  <Globe className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Web Development</h4>
+                    <span className="text-[10px] text-gray-400">Full-Stack Apps</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
+                  <Zap className="w-5 h-5 text-rose-400 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Real-World Projects</h4>
+                    <span className="text-[10px] text-gray-400">Practical Solutions</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* ABOUT CODESPHERE AI PLATFORM SECTION                                      */}
+        {/* ========================================================================= */}
+        <section className="w-full bg-surface-card/40 border-t border-border/60 py-16 px-4">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left Col: Platform Story */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-6 text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
                 <Award className="w-3.5 h-3.5" />
                 <span>About CodeSphere AI</span>
@@ -181,53 +289,37 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Col: Creator / Developer Spotlight Card for Sekhar */}
+            {/* Right Col: Architecture Card */}
             <div className="lg:col-span-5">
-              <div className="p-8 rounded-3xl bg-gradient-to-b from-surface-card to-background border border-border shadow-2xl relative overflow-hidden space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <img
-                      src="/sekhar.jpg"
-                      alt="Sekhar"
-                      className="w-24 h-24 rounded-2xl object-cover border-2 border-indigo-500/40 shadow-xl"
-                    />
-                    <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-background animate-pulse" />
-                  </div>
-                  <div>
-                    <span className="text-xs text-indigo-400 font-semibold uppercase tracking-wider block">Developer Spotlight</span>
-                    <h3 className="text-2xl font-bold text-white mt-0.5">Sekhar</h3>
-                    <span className="text-xs text-gray-400 block font-medium">B.Tech Data Science Student</span>
-                  </div>
+              <div className="p-8 rounded-3xl bg-gradient-to-b from-surface-card to-background border border-border shadow-2xl relative overflow-hidden space-y-6 text-left">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-2xl shadow-inner">
+                  <Cpu className="w-7 h-7" />
                 </div>
 
-                <div className="space-y-3 text-xs text-gray-300 leading-relaxed border-t border-border/60 pt-4">
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-indigo-400" />
-                    About Me
-                  </h4>
-                  <p>
-                    Hi, I’m <strong className="text-white">Sekhar</strong>, a B.Tech Data Science student passionate about{' '}
-                    <strong className="text-indigo-300">Artificial Intelligence, software development, cybersecurity, and building real-world projects</strong>.
-                    I enjoy learning by creating, experimenting with new technologies, and turning ideas into practical solutions.
-                  </p>
-                  <p>
-                    I’m currently focused on improving my skills in{' '}
-                    <strong className="text-emerald-300">Python, C, web development, AI, and data science</strong>, while continuously exploring new areas of technology.
+                <div className="space-y-2">
+                  <span className="text-xs text-indigo-400 font-semibold uppercase tracking-wider">System Architecture</span>
+                  <h3 className="text-2xl font-bold text-white">Production Engine</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Powered by distributed WebSockets, sandboxed compilers, and automated PDF & Excel class reporting.
                   </p>
                 </div>
 
                 <div className="p-4 bg-surface rounded-xl border border-border/60 space-y-2 text-xs font-mono text-gray-300">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Focus Areas:</span>
-                    <span className="text-indigo-400">AI & Data Science</span>
+                    <span className="text-gray-500">Backend:</span>
+                    <span className="text-indigo-400">Python Flask & Socket.IO</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Core Languages:</span>
-                    <span className="text-emerald-400">Python, C, Web Dev</span>
+                    <span className="text-gray-500">Frontend:</span>
+                    <span className="text-emerald-400">React 18 & TypeScript</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Passion:</span>
-                    <span className="text-cyan-400">Cybersecurity & Software</span>
+                    <span className="text-gray-500">Editor:</span>
+                    <span className="text-cyan-400">Monaco Engine</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Database:</span>
+                    <span className="text-amber-400">PostgreSQL & Redis</span>
                   </div>
                 </div>
 
@@ -241,7 +333,7 @@ export const HomePage: React.FC = () => {
                     <Github className="w-4 h-4" />
                     <span>View GitHub Repo</span>
                   </a>
-                  <span className="text-[11px] text-gray-500 font-mono">CodeSphere AI</span>
+                  <span className="text-[11px] text-gray-500 font-mono">v1.0.0 Production</span>
                 </div>
               </div>
             </div>
@@ -262,7 +354,7 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
             {/* Step 1 */}
-            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left">
               <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-indigo-600/30">
                 01
               </div>
@@ -273,7 +365,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Step 2 */}
-            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left">
               <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-600/30">
                 02
               </div>
@@ -284,7 +376,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Step 3 */}
-            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left">
               <div className="w-10 h-10 rounded-xl bg-cyan-600 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-cyan-600/30">
                 03
               </div>
@@ -305,7 +397,7 @@ export const HomePage: React.FC = () => {
             <h2 className="text-3xl font-extrabold text-white mt-2">Comprehensive Platform Features</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
             <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3">
               <Terminal className="w-6 h-6 text-indigo-400" />
               <h4 className="text-base font-bold text-white">Monaco Editor Engine</h4>
@@ -365,7 +457,7 @@ export const HomePage: React.FC = () => {
         <div className="pt-3 border-t border-border/40 text-[11px] text-gray-500 flex items-center justify-center gap-1">
           <span>Crafted with</span>
           <Heart className="w-3 h-3 text-rose-500 fill-rose-500" />
-          <span>by Thirunavukkarasu for CS Instructors & Students.</span>
+          <span>by Sekhar for CS Instructors & Students.</span>
         </div>
       </footer>
     </div>
