@@ -31,6 +31,7 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
 
     // Set up broadcast event handlers
     const handleStudentJoined = (data: ServerStudentPresenceEvent) => {
+      console.log(`[Socket] student_joined received for studentId: ${data.student_id}`);
       updateStudentPresence(data.student_id, 'online', data.name, data.roll_number);
       addActivityItem({
         id: Math.random().toString(36).substring(2, 9),
@@ -44,6 +45,7 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
     };
 
     const handleStudentLeft = (data: ServerStudentPresenceEvent) => {
+      console.log(`[Socket] student_left received for studentId: ${data.student_id}`);
       updateStudentPresence(data.student_id, 'offline');
       addActivityItem({
         id: Math.random().toString(36).substring(2, 9),
@@ -57,7 +59,11 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
     };
 
     const handleCodeUpdated = (data: ServerStudentCodeUpdateEvent) => {
+      console.log(`[Socket] student_code_updated received for studentId: ${data.student_id}, codeLength: ${data.code?.length}`);
       updateStudentCode(data.student_id, data.code);
+      if (data.cursor) {
+        updateStudentCursor(data.student_id, data.cursor.line, data.cursor.column);
+      }
       addActivityItem({
         id: Math.random().toString(36).substring(2, 9),
         timestamp: new Date().toLocaleTimeString(),
@@ -74,7 +80,34 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
     };
 
     const handleCursor = (data: ServerStudentCursorEvent) => {
-      updateStudentCursor(data.student_id, data.line, data.column);
+      const line = data.cursor?.line ?? data.line ?? 1;
+      const col = data.cursor?.column ?? data.column ?? 1;
+      updateStudentCursor(data.student_id, line, col);
+    };
+
+    const handleStudentActivity = (data: any) => {
+      let displayMessage = `Activity: ${data.event_type}`;
+      if (data.event_type === 'paste_attempt') {
+        displayMessage = `Paste attempt detected`;
+      } else if (data.event_type === 'copy_attempt') {
+        displayMessage = `Copy attempt detected`;
+      } else if (data.event_type === 'cut_attempt') {
+        displayMessage = `Cut attempt detected`;
+      } else if (data.event_type === 'tab_blur') {
+        displayMessage = `Tab switched (focus lost)`;
+      } else if (data.event_type === 'tab_focus') {
+        displayMessage = `Tab focused`;
+      }
+
+      addActivityItem({
+        id: Math.random().toString(36).substring(2, 9),
+        timestamp: new Date().toLocaleTimeString(),
+        student_id: data.student_id,
+        event_type: data.event_type,
+        message: displayMessage,
+        category: 'activity',
+        metadata: data.metadata,
+      });
     };
 
     const handleSessionEnded = (data: ServerSessionEndedEvent) => {
@@ -90,6 +123,7 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
     socketService.on('student_typing', handleTyping);
     socketService.on('student_stopped_typing', handleTyping);
     socketService.on('student_cursor_updated', handleCursor);
+    socketService.on('student_activity', handleStudentActivity);
     socketService.on('session_ended', handleSessionEnded);
 
     return () => {
@@ -101,6 +135,7 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
       socketService.off('student_typing', handleTyping);
       socketService.off('student_stopped_typing', handleTyping);
       socketService.off('student_cursor_updated', handleCursor);
+      socketService.off('student_activity', handleStudentActivity);
       socketService.off('session_ended', handleSessionEnded);
     };
   }, [sessionId, role]);

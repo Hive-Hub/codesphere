@@ -1,4 +1,6 @@
-export type StudentPresenceStatus = 'online' | 'offline' | 'typing' | 'running';
+import { Session } from './session';
+
+export type StudentPresenceStatus = 'online' | 'offline' | 'typing';
 
 export interface Student {
   id: number;
@@ -11,17 +13,19 @@ export interface Student {
   status: StudentPresenceStatus;
   joined_at?: string;
   last_active?: string;
-  is_typing?: boolean;
   progress?: number;
   code_quality?: number;
   ai_score?: number;
   executions_count?: number;
   errors_count?: number;
-  current_stage?: string;
-  is_stuck?: boolean;
+  code?: string;
   current_code?: string;
   cursor_line?: number;
   cursor_column?: number;
+  is_typing?: boolean;
+  is_stuck?: boolean;
+  last_execution_status?: string;
+  last_output?: string;
 }
 
 export interface StudentJoinPayload {
@@ -36,19 +40,10 @@ export interface StudentJoinPayload {
 export interface StudentJoinResponseData {
   student_token: string;
   student: Student;
-  session: {
-    session_id: number;
-    session_code: string;
-    mode: 'practice' | 'problem_solving';
-    language: 'python' | 'c' | 'java';
-    title: string;
-    college: string;
-    department: string;
-    subject: string;
-  };
+  session: Session;
 }
 
 export interface StudentActivityEventPayload {
-  activity_type: 'copy' | 'paste' | 'cut' | 'tab_blur' | 'tab_focus';
-  details?: string;
+  activity_type: string;
+  details?: any;
 }

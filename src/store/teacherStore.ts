@@ -1,22 +1,32 @@
 import { create } from 'zustand';
+import { Student, StudentPresenceStatus } from '../types/student';
 import { DashboardMetrics } from '../types/teacher';
-import { Student } from '../types/student';
-import { LiveActivityFeedItem } from '../types/websocket';
+
+export interface ActivityItem {
+  id: string;
+  timestamp: string;
+  student_name?: string;
+  student_id?: number;
+  event_type: string;
+  message: string;
+  category: 'presence' | 'code' | 'compiler' | 'ai' | 'activity';
+  metadata?: any;
+}
 
 interface TeacherState {
   metrics: DashboardMetrics;
   students: Student[];
   selectedStudent: Student | null;
-  activityFeed: LiveActivityFeedItem[];
+  activityFeed: ActivityItem[];
   isLoadingDashboard: boolean;
-  
+
   setDashboardData: (metrics: DashboardMetrics, students: Student[]) => void;
-  updateStudentPresence: (studentId: number, status: 'online' | 'offline' | 'typing' | 'running', name?: string, roll_number?: string) => void;
+  updateStudentPresence: (studentId: number, status: StudentPresenceStatus, name?: string, roll_number?: string) => void;
   updateStudentCode: (studentId: number, code: string) => void;
   updateStudentTyping: (studentId: number, isTyping: boolean) => void;
   updateStudentCursor: (studentId: number, line: number, column: number) => void;
   setSelectedStudent: (student: Student | null) => void;
-  addActivityItem: (item: LiveActivityFeedItem) => void;
+  addActivityItem: (item: ActivityItem) => void;
   setLoadingDashboard: (loading: boolean) => void;
 }
 
@@ -25,7 +35,7 @@ const initialMetrics: DashboardMetrics = {
   online_students: 0,
   offline_students: 0,
   avg_progress: 0,
-  avg_ai_score: 0,
+  avg_ai_score: 100,
   total_executions: 0,
   successful_executions: 0,
   failed_executions: 0,
@@ -42,7 +52,7 @@ export const useTeacherStore = create<TeacherState>((set) => ({
     const list = students || [];
     const mergedMetrics: DashboardMetrics = {
       total_students: incomingMetrics?.total_students ?? list.length ?? 0,
-      online_students: incomingMetrics?.online_students ?? list.filter(s => s.status === 'online').length ?? 0,
+      online_students: incomingMetrics?.online_students ?? list.filter(s => s.status === 'online' || s.status === 'typing').length ?? 0,
       offline_students: incomingMetrics?.offline_students ?? list.filter(s => s.status === 'offline').length ?? 0,
       avg_progress: incomingMetrics?.avg_progress ?? 0,
       avg_ai_score: incomingMetrics?.avg_ai_score ?? 100,
@@ -55,7 +65,7 @@ export const useTeacherStore = create<TeacherState>((set) => ({
 
   updateStudentPresence: (studentId, status, name, roll_number) => set((state) => {
     let studentExists = false;
-    const updatedStudents = state.students.map((st) => {
+    const updatedStudents: Student[] = state.students.map((st) => {
       if (st.id === studentId) {
         studentExists = true;
         return { ...st, status, is_typing: status === 'offline' ? false : st.is_typing };
@@ -99,37 +109,53 @@ export const useTeacherStore = create<TeacherState>((set) => ({
     };
   }),
 
-  updateStudentCode: (studentId, code) => set((state) => ({
-    students: state.students.map((st) =>
-      st.id === studentId ? { ...st, current_code: code } : st
-    ),
-    selectedStudent: state.selectedStudent?.id === studentId
-      ? { ...state.selectedStudent, current_code: code }
-      : state.selectedStudent,
-  })),
+  updateStudentCode: (studentId, code) => set((state) => {
+    const updatedStudents: Student[] = state.students.map((st) =>
+      st.id === studentId ? { ...st, current_code: code, code: code } : st
+    );
 
-  updateStudentTyping: (studentId, isTyping) => set((state) => ({
-    students: state.students.map((st) =>
-      st.id === studentId ? { ...st, is_typing: isTyping } : st
-    ),
-    selectedStudent: state.selectedStudent?.id === studentId
-      ? { ...state.selectedStudent, is_typing: isTyping }
-      : state.selectedStudent,
-  })),
+    return {
+      students: updatedStudents,
+      selectedStudent: state.selectedStudent?.id === studentId
+        ? { ...state.selectedStudent, current_code: code, code: code }
+        : state.selectedStudent,
+    };
+  }),
 
-  updateStudentCursor: (studentId, line, column) => set((state) => ({
-    students: state.students.map((st) =>
+  updateStudentTyping: (studentId, isTyping) => set((state) => {
+    const updatedStudents: Student[] = state.students.map((st) => {
+      if (st.id === studentId) {
+        const nextStatus: StudentPresenceStatus = isTyping ? 'typing' : (st.status === 'offline' ? 'offline' : 'online');
+        return { ...st, is_typing: isTyping, status: nextStatus };
+      }
+      return st;
+    });
+
+    return {
+      students: updatedStudents,
+      selectedStudent: state.selectedStudent?.id === studentId
+        ? { ...state.selectedStudent, is_typing: isTyping }
+        : state.selectedStudent,
+    };
+  }),
+
+  updateStudentCursor: (studentId, line, column) => set((state) => {
+    const updatedStudents: Student[] = state.students.map((st) =>
       st.id === studentId ? { ...st, cursor_line: line, cursor_column: column } : st
-    ),
-    selectedStudent: state.selectedStudent?.id === studentId
-      ? { ...state.selectedStudent, cursor_line: line, cursor_column: column }
-      : state.selectedStudent,
-  })),
+    );
+
+    return {
+      students: updatedStudents,
+      selectedStudent: state.selectedStudent?.id === studentId
+        ? { ...state.selectedStudent, cursor_line: line, cursor_column: column }
+        : state.selectedStudent,
+    };
+  }),
 
   setSelectedStudent: (student) => set({ selectedStudent: student }),
 
   addActivityItem: (item) => set((state) => ({
-    activityFeed: [item, ...state.activityFeed].slice(0, 100), // Keep latest 100 events
+    activityFeed: [item, ...state.activityFeed].slice(0, 100),
   })),
 
   setLoadingDashboard: (loading) => set({ isLoadingDashboard: loading }),

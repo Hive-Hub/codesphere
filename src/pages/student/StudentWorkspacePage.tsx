@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStudentSession } from '../../hooks/useStudentSession';
 import { useCodeEditor } from '../../hooks/useCodeEditor';
@@ -13,6 +13,8 @@ import { useAIStore } from '../../store/aiStore';
 import { Header } from '../../components/common/Header';
 import { Modal } from '../../components/common/Modal';
 import { storage } from '../../utils/storage';
+import { socketService } from '../../services/socket';
+import { studentApi } from '../../services/studentApi';
 import Editor from '@monaco-editor/react';
 import {
   Play,
@@ -23,13 +25,11 @@ import {
   Terminal,
   AlertTriangle,
   BookOpen,
-  CheckCircle2,
   Lock,
   X,
   MessageSquare,
-  Wifi,
   WifiOff,
-  RefreshCw,
+  ShieldAlert,
 } from 'lucide-react';
 
 export const StudentWorkspacePage: React.FC = () => {
@@ -38,7 +38,7 @@ export const StudentWorkspacePage: React.FC = () => {
   const navigate = useNavigate();
 
   const { session, problem, sessionEnded, endedReason } = useSessionStore();
-  const { student, warningMessage } = useStudentStore();
+  const { student, warningMessage, setWarningMessage } = useStudentStore();
   const { loading, error: sessionError } = useStudentSession(sessionId);
   const { isConnected } = usePresence();
 
@@ -61,15 +61,66 @@ export const StudentWorkspacePage: React.FC = () => {
   const { aiResponse, isLoadingAI, aiMode, clearAI } = useAIStore();
 
   const [showAiDrawer, setShowAiDrawer] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Initialize socket listener
+  const lastActivityTimeRef = useRef<Record<string, number>>({});
+
+  // Initialize socket listener for student role
   const { socket } = useSocket(sessionId, 'student');
 
-  // Load offline draft fallback if page refreshed
+  // Cooldown-guarded toast warning & activity reporter
+  const triggerActivityWarning = useCallback((eventType: 'paste_attempt' | 'copy_attempt' | 'cut_attempt' | 'tab_blur' | 'tab_focus', userMsg: string) => {
+    const now = Date.now();
+    const lastTime = lastActivityTimeRef.current[eventType] || 0;
+
+    if (now - lastTime > 2000) {
+      lastActivityTimeRef.current[eventType] = now;
+
+      setToastMessage(userMsg);
+      setTimeout(() => setToastMessage(null), 3500);
+
+      const studentId = student?.id || storage.getStudentId();
+      if (studentId && sessionId) {
+        socketService.emitActivity(sessionId, studentId, eventType, { timestamp: new Date().toISOString() });
+        studentApi.reportActivity(sessionId, { activity_type: eventType, details: { timestamp: new Date().toISOString() } }).catch(() => {});
+      }
+    }
+  }, [sessionId, student?.id]);
+
+  // Tab visibility change tracking
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        triggerActivityWarning('tab_blur', 'Tab switched. Activity recorded.');
+      } else {
+        triggerActivityWarning('tab_focus', 'Returned to workspace.');
+      }
+    };
+
+    const handleWindowBlur = () => {
+      triggerActivityWarning('tab_blur', 'Window focus lost. Activity recorded.');
+    };
+
+    const handleWindowFocus = () => {
+      triggerActivityWarning('tab_focus', 'Workspace focused.');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [triggerActivityWarning]);
+
+  // Restore local draft fallback on mount
   useEffect(() => {
     if (student?.id && sessionId) {
       const draft = storage.getCodeDraft(sessionId, student.id);
-      if (draft && draft.trim().length > 0 && !code) {
+      if (draft && draft.trim().length > 0 && (!code || code.trim().length === 0)) {
         setCode(draft);
       }
     }
@@ -98,14 +149,13 @@ export const StudentWorkspacePage: React.FC = () => {
     await reviewCode();
   };
 
-  // AI Progress milestone calculation from backend student progress
   const currentProgress = student?.progress ?? 0;
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
       <Header />
 
-      {/* Connection & Anti-Cheat Warning Banners */}
+      {/* Connection Alert Banner */}
       {!isConnected && (
         <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center text-xs font-semibold text-amber-300 flex items-center justify-center gap-2">
           <WifiOff className="w-4 h-4 text-amber-400 animate-pulse" />
@@ -113,17 +163,18 @@ export const StudentWorkspacePage: React.FC = () => {
         </div>
       )}
 
-      {warningMessage && (
-        <div className="bg-rose-500/15 border-b border-rose-500/30 px-4 py-2 text-center text-xs font-semibold text-rose-300 flex items-center justify-center gap-2 animate-bounce">
-          <AlertTriangle className="w-4 h-4 text-rose-400" />
-          <span>{warningMessage}</span>
+      {/* Anti-Cheat Activity Toast Banner */}
+      {toastMessage && (
+        <div className="bg-amber-500/90 text-slate-950 font-bold px-4 py-2 text-center text-xs flex items-center justify-center gap-2 shadow-lg animate-bounce sticky top-[65px] z-50">
+          <ShieldAlert className="w-4 h-4 text-slate-950" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Main Workspace Body */}
       <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 lg:p-6 max-w-[1800px] mx-auto w-full">
         {/* Left Column: Problem Statement / Instruction Pane */}
-        <div className="w-full lg:w-1/3 bg-surface-card border border-border rounded-2xl p-6 flex flex-col justify-between overflow-y-auto max-h-[450px] lg:max-h-none shadow-xl">
+        <div className="w-full lg:w-1/3 bg-surface-card border border-border rounded-2xl p-6 flex flex-col justify-between overflow-y-auto max-h-[450px] lg:max-h-none shadow-xl text-left">
           <div className="space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
@@ -135,7 +186,7 @@ export const StudentWorkspacePage: React.FC = () => {
               </span>
             </div>
 
-            {/* Problem Solving Mode AI Progress Bar */}
+            {/* Problem Solving Mode Progress */}
             {session?.mode === 'problem_solving' && (
               <div className="p-3 bg-surface rounded-xl border border-border space-y-2">
                 <div className="flex items-center justify-between text-xs">
@@ -147,14 +198,6 @@ export const StudentWorkspacePage: React.FC = () => {
                     className="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-500"
                     style={{ width: `${currentProgress}%` }}
                   />
-                </div>
-                <div className="flex justify-between text-[10px] text-gray-500 font-mono">
-                  <span>10%</span>
-                  <span>25%</span>
-                  <span>50%</span>
-                  <span>75%</span>
-                  <span>90%</span>
-                  <span>100%</span>
                 </div>
               </div>
             )}
@@ -200,7 +243,7 @@ export const StudentWorkspacePage: React.FC = () => {
             )}
           </div>
 
-          {/* AI Helper Quick Action Buttons */}
+          {/* AI Helper Buttons */}
           <div className="pt-6 border-t border-border space-y-2">
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
               AI Classroom Assistant
@@ -238,8 +281,22 @@ export const StudentWorkspacePage: React.FC = () => {
 
         {/* Right Column: Monaco Editor & Console Terminal */}
         <div className="w-full lg:w-2/3 flex flex-col gap-4">
-          {/* Monaco Editor Container */}
-          <div className="bg-surface-card border border-border rounded-2xl overflow-hidden flex flex-col h-[480px] shadow-xl">
+          {/* Monaco Editor Container with Copy/Paste Interception */}
+          <div
+            className="bg-surface-card border border-border rounded-2xl overflow-hidden flex flex-col h-[480px] shadow-xl"
+            onPaste={(e) => {
+              e.preventDefault();
+              triggerActivityWarning('paste_attempt', 'Paste is disabled during this coding session.');
+            }}
+            onCopy={(e) => {
+              e.preventDefault();
+              triggerActivityWarning('copy_attempt', 'Copying is disabled during this coding session.');
+            }}
+            onCut={(e) => {
+              e.preventDefault();
+              triggerActivityWarning('cut_attempt', 'Cutting is disabled during this coding session.');
+            }}
+          >
             <div className="bg-surface px-4 py-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Code className="w-4 h-4 text-indigo-400" />
@@ -268,12 +325,41 @@ export const StudentWorkspacePage: React.FC = () => {
                 value={code}
                 onChange={(val) => handleCodeChange(val || '')}
                 onMount={(editor) => {
+                  // Cursor position tracking
                   editor.onDidChangeCursorPosition((e) => {
                     handleCursorChange(e.position.lineNumber, e.position.column);
+                  });
+
+                  // Intercept Keyboard Copy/Paste/Cut directly in Monaco Keybinding pipeline
+                  editor.onKeyDown((e) => {
+                    // Check for Ctrl+V, Cmd+V, Shift+Insert (Paste)
+                    if (
+                      (e.ctrlKey || e.metaKey) && e.keyCode === 52 || // keyCode 52 = V
+                      (e.shiftKey && e.keyCode === 45) // keyCode 45 = Insert
+                    ) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      triggerActivityWarning('paste_attempt', 'Paste is disabled during this coding session.');
+                    }
+
+                    // Check for Ctrl+C, Cmd+C (Copy)
+                    if ((e.ctrlKey || e.metaKey) && e.keyCode === 33) { // keyCode 33 = C
+                      e.preventDefault();
+                      e.stopPropagation();
+                      triggerActivityWarning('copy_attempt', 'Copying is disabled during this coding session.');
+                    }
+
+                    // Check for Ctrl+X, Cmd+X (Cut)
+                    if ((e.ctrlKey || e.metaKey) && e.keyCode === 54) { // keyCode 54 = X
+                      e.preventDefault();
+                      e.stopPropagation();
+                      triggerActivityWarning('cut_attempt', 'Cutting is disabled during this coding session.');
+                    }
                   });
                 }}
                 options={{
                   readOnly: sessionEnded,
+                  contextmenu: false, // Disable right-click context menu (prevents right-click paste)
                   minimap: { enabled: true },
                   scrollBeyondLastLine: false,
                   fontSize: 14,
@@ -357,20 +443,20 @@ export const StudentWorkspacePage: React.FC = () => {
               {compilerResult && (
                 <div className="flex items-center gap-3 text-xs font-mono text-gray-400">
                   <span>
-                    Status: <strong className={compilerResult.exit_code === 0 ? 'text-emerald-400' : 'text-rose-400'}>{compilerResult.status.toUpperCase()}</strong>
+                    Status: <strong className={compilerResult.exit_code === 0 ? 'text-emerald-400' : 'text-rose-400'}>{(compilerResult.status || 'FINISHED').toUpperCase()}</strong>
                   </span>
                   {compilerResult.execution_time && (
-                    <span>Time: <strong className="text-indigo-400">{compilerResult.execution_time}ms</strong></span>
+                    <span>Time: <strong className="text-indigo-400">{compilerResult.execution_time}</strong></span>
                   )}
                 </div>
               )}
             </div>
 
             {/* Terminal Tab Body */}
-            <div className="flex-1 bg-background p-4 font-mono text-xs overflow-y-auto">
+            <div className="flex-1 bg-background p-4 font-mono text-xs overflow-y-auto text-left">
               {activeConsoleTab === 'output' && (
                 <pre className="text-emerald-400 whitespace-pre-wrap">
-                  {compilerResult?.stdout || '// Run code to view stdout output here.'}
+                  {compilerResult?.stdout || compilerResult?.output || '// Run code to view stdout output here.'}
                 </pre>
               )}
 
@@ -388,7 +474,7 @@ export const StudentWorkspacePage: React.FC = () => {
 
               {activeConsoleTab === 'errors' && (
                 <pre className="text-rose-400 whitespace-pre-wrap">
-                  {compilerResult?.stderr || compilerError || '// No compiler or runtime errors detected.'}
+                  {compilerResult?.stderr || compilerResult?.error || compilerError || '// No compiler or runtime errors detected.'}
                 </pre>
               )}
             </div>
@@ -398,7 +484,7 @@ export const StudentWorkspacePage: React.FC = () => {
 
       {/* AI Assistant Drawer */}
       {showAiDrawer && (
-        <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end animate-fade-in">
+        <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end animate-fade-in text-left">
           <div className="w-full max-w-lg bg-surface border-l border-border h-full flex flex-col shadow-2xl overflow-y-auto">
             <div className="bg-surface/95 backdrop-blur-md px-6 py-4 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2 text-indigo-400 font-bold">

@@ -10,11 +10,13 @@ export interface CodeSavePayload {
 }
 
 export interface CompilerResult {
-  stdout: string;
-  stderr: string;
+  stdout?: string;
+  stderr?: string;
+  output?: string;
+  error?: string;
   exit_code: number;
-  execution_time?: number; // in milliseconds or seconds
-  memory?: number; // in bytes or MB
-  status: 'success' | 'compilation_error' | 'runtime_error' | 'timeout' | 'error';
+  execution_time?: string | number;
+  memory?: string | number;
+  status: 'success' | 'compilation_error' | 'runtime_error' | 'timeout' | 'error' | 'failed';
   timestamp?: string;
 }

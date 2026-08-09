@@ -21,6 +21,13 @@ export const teacherApi = {
     return res.data;
   },
 
+  getStudentDetails: async (sessionId: number, studentId: number): Promise<ApiResponse<any>> => {
+    const res = await apiClient.get<ApiResponse<any>>(
+      `/teacher/session/${sessionId}/student/${studentId}/details`
+    );
+    return res.data;
+  },
+
   setProblem: async (sessionId: number, problem: Problem): Promise<ApiResponse<Problem>> => {
     const res = await apiClient.post<ApiResponse<Problem>>(
       `/teacher/session/${sessionId}/problem`,

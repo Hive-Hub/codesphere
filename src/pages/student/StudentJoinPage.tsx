@@ -76,14 +76,15 @@ export const StudentJoinPage: React.FC = () => {
         // Store student token and IDs
         storage.setActiveRole('student');
         storage.setStudentToken(student_token);
-        storage.setSessionId(session.session_id);
+        const sId = (session as any).session_id || session.id;
+        storage.setSessionId(sId);
         storage.setStudentId(student.id);
         storage.setSessionInfo({ student, session, student_token });
 
         setActiveRole('student');
         setStudentData(student, student_token);
 
-        navigate(`/student/session/${session.session_id}`);
+        navigate(`/student/session/${sId}`);
       } else {
         setError(res.message || 'Failed to join session');
       }
