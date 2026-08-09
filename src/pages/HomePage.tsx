@@ -24,7 +24,9 @@ import {
   User,
   Brain,
   Shield,
-  Database
+  Database,
+  Compass,
+  Star
 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -39,9 +41,9 @@ export const HomePage: React.FC = () => {
         {/* HERO SECTION WITH DYNAMIC GLASSMORPHISM & REAL-TIME BADGE                 */}
         {/* ========================================================================= */}
         <section className="relative w-full max-w-7xl px-4 py-16 md:py-24 flex flex-col items-center text-center overflow-hidden">
-          {/* Subtle Ambient Gradient Glow Backdrop */}
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none -z-10" />
-          <div className="absolute top-48 right-10 w-[300px] h-[300px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none -z-10" />
+          {/* Ambient Lighting Accents */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[650px] h-[380px] bg-indigo-600/20 blur-[130px] rounded-full pointer-events-none -z-10" />
+          <div className="absolute top-48 right-10 w-[320px] h-[320px] bg-emerald-500/10 blur-[110px] rounded-full pointer-events-none -z-10" />
 
           {/* Hero Badge */}
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-8 animate-fade-in shadow-lg shadow-indigo-500/5">
@@ -65,21 +67,21 @@ export const HomePage: React.FC = () => {
             CodeSphere AI bridges the gap between students and teachers in computer science labs. Inspect live Monaco Editor cursors, monitor execution runs, detect stuck students instantly, and generate PDF/Excel classroom reports.
           </p>
 
-          {/* Real-time Metrics Pill Strip */}
+          {/* Real-time Metrics Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-4xl mt-10">
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center">
+            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
               <span className="text-2xl font-bold font-mono text-indigo-400">100%</span>
               <span className="text-xs text-gray-400 block mt-0.5">Real-Time Sync</span>
             </div>
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center">
+            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
               <span className="text-2xl font-bold font-mono text-emerald-400">&lt;50ms</span>
               <span className="text-xs text-gray-400 block mt-0.5">Socket.IO Latency</span>
             </div>
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center">
+            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
               <span className="text-2xl font-bold font-mono text-cyan-400">3 Languages</span>
               <span className="text-xs text-gray-400 block mt-0.5">Python • C • Java</span>
             </div>
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center">
+            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
               <span className="text-2xl font-bold font-mono text-amber-400">AI Powered</span>
               <span className="text-xs text-gray-400 block mt-0.5">Automated Diagnostics</span>
             </div>
@@ -88,7 +90,7 @@ export const HomePage: React.FC = () => {
           {/* Role Selection Portals */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mt-14 text-left">
             {/* Teacher Card */}
-            <div className="relative group p-8 rounded-3xl bg-surface-card/80 backdrop-blur-xl border border-border/80 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 flex flex-col justify-between space-y-6">
+            <div className="relative group p-8 rounded-3xl bg-surface-card/80 backdrop-blur-xl border border-border/80 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/15 flex flex-col justify-between space-y-6">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all pointer-events-none" />
               
               <div className="space-y-4 relative z-10">
@@ -114,7 +116,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Student Card */}
-            <div className="relative group p-8 rounded-3xl bg-surface-card/80 backdrop-blur-xl border border-border/80 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/10 flex flex-col justify-between space-y-6">
+            <div className="relative group p-8 rounded-3xl bg-surface-card/80 backdrop-blur-xl border border-border/80 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/15 flex flex-col justify-between space-y-6">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all pointer-events-none" />
 
               <div className="space-y-4 relative z-10">
@@ -142,103 +144,108 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* ========================================================================= */}
-        {/* DEDICATED "ABOUT ME" SECTION FOR SEKHAR (WITH FULL PROFILE PHOTO)        */}
+        {/* DEDICATED "ABOUT ME" SECTION FOR SEKHAR (STUNNING MODERN PORTRAIT CARD)   */}
         {/* ========================================================================= */}
-        <section className="w-full bg-gradient-to-b from-surface-card/80 to-background border-t border-border/80 py-20 px-4 relative overflow-hidden">
-          {/* Decorative Glow */}
-          <div className="absolute top-1/2 left-10 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <section className="w-full bg-gradient-to-b from-surface-card/90 via-background to-background border-t border-border/80 py-24 px-4 relative overflow-hidden">
+          {/* Ambient Lighting Backdrops */}
+          <div className="absolute top-1/2 left-10 -translate-y-1/2 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-[140px] pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
-            {/* Left Column: Full Portrait Photo Display */}
+            {/* Left Column: Ultra-Modern Edge-to-Edge Portrait Frame */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative group w-full max-w-md">
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 rounded-3xl blur-lg opacity-40 group-hover:opacity-75 transition duration-500" />
-                <div className="relative rounded-3xl overflow-hidden border border-border/80 bg-surface-card p-2.5 shadow-2xl space-y-3">
+              <div className="relative group w-full max-w-sm sm:max-w-md">
+                {/* Glowing Outer Frame Gradient */}
+                <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-500 via-cyan-400 to-emerald-400 rounded-[32px] blur-xl opacity-50 group-hover:opacity-85 transition duration-700" />
+                
+                {/* Image Container Card */}
+                <div className="relative rounded-[28px] overflow-hidden border border-indigo-500/30 bg-slate-950 shadow-2xl aspect-[3/4]">
                   <img
                     src="/sekhar.jpg"
                     alt="Sekhar - B.Tech Data Science Student"
-                    className="w-full h-auto max-h-[650px] object-contain rounded-2xl group-hover:scale-[1.01] transition-transform duration-500"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="p-4 bg-background/90 backdrop-blur-md rounded-2xl border border-border/60 space-y-1 text-left">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 block">Data Science & AI Developer</span>
-                    <h3 className="text-2xl font-bold text-white">Sekhar</h3>
-                    <p className="text-xs text-gray-400">B.Tech Student • Developer & Researcher</p>
+
+                  {/* Gradient Overlay at Bottom for Overlay Info */}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent p-6 pt-16 flex flex-col justify-end text-left space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                        B.Tech Data Science Student
+                      </span>
+                    </div>
+                    <h3 className="text-3xl font-extrabold text-white tracking-tight">Sekhar</h3>
+                    <p className="text-xs text-gray-300 font-medium">
+                      AI • Software Dev • Cybersecurity • Real-World Projects
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Sekhar's Bio & Tech Focus */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
-                <User className="w-3.5 h-3.5" />
-                <span>Developer Profile</span>
+            {/* Right Column: Sekhar's Exact Bio & Interactive Bento Skill Grid */}
+            <div className="lg:col-span-7 space-y-8 text-left">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+                  <User className="w-4 h-4 text-indigo-400" />
+                  <span>Developer Profile</span>
+                </div>
+
+                <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                  About Me
+                </h2>
+
+                <div className="space-y-4 text-gray-200 text-base sm:text-lg leading-relaxed">
+                  <p>
+                    Hi, I’m <strong className="text-white font-bold">Sekhar</strong>, a B.Tech Data Science student passionate about{' '}
+                    <strong className="text-indigo-400 font-bold">Artificial Intelligence, software development, cybersecurity, and building real-world projects</strong>.
+                    I enjoy learning by creating, experimenting with new technologies, and turning ideas into practical solutions.
+                  </p>
+
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+                    I’m currently focused on improving my skills in{' '}
+                    <strong className="text-emerald-400 font-bold">Python, C, web development, AI, and data science</strong>, while continuously exploring new areas of technology.
+                  </p>
+                </div>
               </div>
 
-              <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-                About Me
-              </h2>
-
-              <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
-                Hi, I’m <strong className="text-white font-bold">Sekhar</strong>, a B.Tech Data Science student passionate about{' '}
-                <strong className="text-indigo-300 font-bold">Artificial Intelligence, software development, cybersecurity, and building real-world projects</strong>.
-                I enjoy learning by creating, experimenting with new technologies, and turning ideas into practical solutions.
-              </p>
-
-              <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
-                I’m currently focused on improving my skills in{' '}
-                <strong className="text-emerald-300 font-bold">Python, C, web development, AI, and data science</strong>, while continuously exploring new areas of technology.
-              </p>
-
-              {/* Core Skill Pills */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
-                  <Brain className="w-5 h-5 text-indigo-400 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Artificial Intelligence</h4>
-                    <span className="text-[10px] text-gray-400">ML & Deep Learning</span>
-                  </div>
+              {/* 6 Skill Bento Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-indigo-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                  <Brain className="w-6 h-6 text-indigo-400 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-xs font-bold text-white">Artificial Intelligence</h4>
+                  <p className="text-[11px] text-gray-400">ML & Deep Learning</p>
                 </div>
 
-                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
-                  <Code2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Software Dev</h4>
-                    <span className="text-[10px] text-gray-400">Python, C & Web</span>
-                  </div>
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-emerald-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                  <Code2 className="w-6 h-6 text-emerald-400 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-xs font-bold text-white">Software Dev</h4>
+                  <p className="text-[11px] text-gray-400">Python, C & Web</p>
                 </div>
 
-                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Cybersecurity</h4>
-                    <span className="text-[10px] text-gray-400">Secure Systems</span>
-                  </div>
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-cyan-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                  <Shield className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-xs font-bold text-white">Cybersecurity</h4>
+                  <p className="text-[11px] text-gray-400">Secure Systems</p>
                 </div>
 
-                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
-                  <Database className="w-5 h-5 text-amber-400 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Data Science</h4>
-                    <span className="text-[10px] text-gray-400">B.Tech Specialization</span>
-                  </div>
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-amber-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                  <Database className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-xs font-bold text-white">Data Science</h4>
+                  <p className="text-[11px] text-gray-400">B.Tech Specialization</p>
                 </div>
 
-                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
-                  <Globe className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Web Development</h4>
-                    <span className="text-[10px] text-gray-400">Full-Stack Apps</span>
-                  </div>
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-purple-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                  <Globe className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-xs font-bold text-white">Web Development</h4>
+                  <p className="text-[11px] text-gray-400">Full-Stack Apps</p>
                 </div>
 
-                <div className="p-3 bg-surface rounded-xl border border-border/80 flex items-center gap-3">
-                  <Zap className="w-5 h-5 text-rose-400 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Real-World Projects</h4>
-                    <span className="text-[10px] text-gray-400">Practical Solutions</span>
-                  </div>
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-rose-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                  <Zap className="w-6 h-6 text-rose-400 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-xs font-bold text-white">Real-World Projects</h4>
+                  <p className="text-[11px] text-gray-400">Practical Solutions</p>
                 </div>
               </div>
             </div>
