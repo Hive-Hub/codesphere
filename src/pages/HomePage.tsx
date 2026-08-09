@@ -181,37 +181,53 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Col: Creator / Developer Spotlight Card */}
+            {/* Right Col: Creator / Developer Spotlight Card for Sekhar */}
             <div className="lg:col-span-5">
               <div className="p-8 rounded-3xl bg-gradient-to-b from-surface-card to-background border border-border shadow-2xl relative overflow-hidden space-y-6">
-                <div className="w-20 h-20 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-2xl shadow-inner">
-                  <Code2 className="w-10 h-10" />
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <img
+                      src="/sekhar.jpg"
+                      alt="Sekhar"
+                      className="w-24 h-24 rounded-2xl object-cover border-2 border-indigo-500/40 shadow-xl"
+                    />
+                    <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-background animate-pulse" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-indigo-400 font-semibold uppercase tracking-wider block">Developer Spotlight</span>
+                    <h3 className="text-2xl font-bold text-white mt-0.5">Sekhar</h3>
+                    <span className="text-xs text-gray-400 block font-medium">B.Tech Data Science Student</span>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <span className="text-xs text-indigo-400 font-semibold uppercase tracking-wider">Meet the Architect</span>
-                  <h3 className="text-2xl font-bold text-white">Built by Thirunavukkarasu</h3>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    Full-Stack Developer & Real-Time Systems Engineer passionate about high-performance educational platforms, distributed web sockets, and intelligent developer tooling.
+                <div className="space-y-3 text-xs text-gray-300 leading-relaxed border-t border-border/60 pt-4">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                    About Me
+                  </h4>
+                  <p>
+                    Hi, I’m <strong className="text-white">Sekhar</strong>, a B.Tech Data Science student passionate about{' '}
+                    <strong className="text-indigo-300">Artificial Intelligence, software development, cybersecurity, and building real-world projects</strong>.
+                    I enjoy learning by creating, experimenting with new technologies, and turning ideas into practical solutions.
+                  </p>
+                  <p>
+                    I’m currently focused on improving my skills in{' '}
+                    <strong className="text-emerald-300">Python, C, web development, AI, and data science</strong>, while continuously exploring new areas of technology.
                   </p>
                 </div>
 
                 <div className="p-4 bg-surface rounded-xl border border-border/60 space-y-2 text-xs font-mono text-gray-300">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Backend:</span>
-                    <span className="text-indigo-400">Python Flask & Socket.IO</span>
+                    <span className="text-gray-500">Focus Areas:</span>
+                    <span className="text-indigo-400">AI & Data Science</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Frontend:</span>
-                    <span className="text-emerald-400">React 18 & TypeScript</span>
+                    <span className="text-gray-500">Core Languages:</span>
+                    <span className="text-emerald-400">Python, C, Web Dev</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Editor:</span>
-                    <span className="text-cyan-400">Monaco Engine</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Database:</span>
-                    <span className="text-amber-400">PostgreSQL & Redis</span>
+                    <span className="text-gray-500">Passion:</span>
+                    <span className="text-cyan-400">Cybersecurity & Software</span>
                   </div>
                 </div>
 
@@ -225,7 +241,7 @@ export const HomePage: React.FC = () => {
                     <Github className="w-4 h-4" />
                     <span>View GitHub Repo</span>
                   </a>
-                  <span className="text-[11px] text-gray-500 font-mono">v1.0.0 Production</span>
+                  <span className="text-[11px] text-gray-500 font-mono">CodeSphere AI</span>
                 </div>
               </div>
             </div>
