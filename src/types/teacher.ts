@@ -14,6 +14,7 @@ export interface TeacherSessionCreatePayload {
 
 export interface TeacherSessionCreateResponseData {
   teacher_token: string;
+  profile_token?: string;
   session: Session;
 }
 

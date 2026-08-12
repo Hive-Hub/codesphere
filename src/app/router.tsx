@@ -2,6 +2,9 @@ import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
 import { RoleSelectionPage } from '../pages/RoleSelectionPage';
+import { TeacherHomePage } from '../pages/teacher/TeacherHomePage';
+import { TeacherSessionsPage } from '../pages/teacher/TeacherSessionsPage';
+import { TeacherStudentsPage } from '../pages/teacher/TeacherStudentsPage';
 import { TeacherSetupPage } from '../pages/teacher/TeacherSetupPage';
 import { TeacherSessionCreatedPage } from '../pages/teacher/TeacherSessionCreatedPage';
 import { TeacherDashboardPage } from '../pages/teacher/TeacherDashboardPage';
@@ -23,6 +26,22 @@ export const router = createBrowserRouter([
 
   // Teacher Routes
   {
+    path: '/teacher/home',
+    element: <TeacherHomePage />,
+  },
+  {
+    path: '/teacher/sessions',
+    element: <TeacherSessionsPage />,
+  },
+  {
+    path: '/teacher/students',
+    element: <TeacherStudentsPage />,
+  },
+  {
+    path: '/teacher/reports',
+    element: <TeacherReportPage />,
+  },
+  {
     path: '/teacher',
     element: <TeacherSetupPage />,
   },
@@ -32,6 +51,10 @@ export const router = createBrowserRouter([
   },
   {
     path: '/teacher/dashboard/:sessionId',
+    element: <TeacherDashboardPage />,
+  },
+  {
+    path: '/teacher/session/:sessionId/dashboard',
     element: <TeacherDashboardPage />,
   },
   {

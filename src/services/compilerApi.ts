@@ -65,4 +65,9 @@ export const compilerApi = {
       return data;
     }
   },
+
+  getExecutions: async (sessionId: number): Promise<ApiResponse<{ executions: CompilerResult[] }>> => {
+    const res = await apiClient.get<ApiResponse<{ executions: CompilerResult[] }>>(`/student/session/${sessionId}/executions`);
+    return res.data;
+  }
 };

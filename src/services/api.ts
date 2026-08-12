@@ -30,17 +30,19 @@ apiClient.interceptors.request.use(
     let token: string | null = null;
 
     if (activeRole === 'teacher') {
-      token = storage.getTeacherToken();
+      token = storage.getTeacherToken() || sessionStorage.getItem('codesphere_teacher_token');
     } else if (activeRole === 'student') {
       token = storage.getStudentToken();
     } else {
-      token = storage.getTeacherToken() || storage.getStudentToken();
+      token = storage.getTeacherToken() || sessionStorage.getItem('codesphere_teacher_token') || storage.getStudentToken();
     }
 
     if (token && token !== 'undefined' && token !== 'null' && token.trim().length > 10) {
       config.headers.Authorization = `Bearer ${token}`;
+      config.headers['X-Teacher-Token'] = token;
     } else {
       delete config.headers.Authorization;
+      delete config.headers['X-Teacher-Token'];
     }
 
     return config;
