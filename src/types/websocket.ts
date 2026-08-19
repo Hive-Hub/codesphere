@@ -1,3 +1,10 @@
+export type SocketConnectionState =
+  | 'DISCONNECTED'
+  | 'CONNECTING'
+  | 'CONNECTED'
+  | 'RECONNECTING'
+  | 'FAILED';
+
 export interface ServerStudentPresenceEvent {
   event: 'student_joined' | 'student_left' | 'student_online' | 'student_offline';
   session_id: number;
@@ -18,6 +25,7 @@ export interface ServerStudentCodeUpdateEvent {
     line: number;
     column: number;
   };
+  version?: number;
   timestamp?: string;
 }
 
@@ -47,4 +55,24 @@ export interface ServerSessionEndedEvent {
   event: 'session_ended';
   session_id: number;
   reason?: string;
+}
+
+export interface ServerCompilerStartedEvent {
+  event: 'compiler_started';
+  session_id: number;
+  student_id: number;
+  language: string;
+  timestamp?: string;
+}
+
+export interface ServerCompilerCompletedEvent {
+  event: 'compiler_completed';
+  session_id: number;
+  student_id: number;
+  status: string;
+  exit_code?: number;
+  stdout?: string;
+  stderr?: string;
+  execution_time?: string | number;
+  timestamp?: string;
 }

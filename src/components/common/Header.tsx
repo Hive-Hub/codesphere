@@ -2,16 +2,59 @@ import React from 'react';
 import { useSessionStore } from '../../store/sessionStore';
 import { usePresence } from '../../hooks/usePresence';
 import { useSessionTimer } from '../../hooks/useSessionTimer';
-import { Terminal, Clock, Wifi, WifiOff, LayoutDashboard, FolderOpen, Users, FileText, PlusCircle } from 'lucide-react';
+import { Terminal, Clock, Wifi, WifiOff, LayoutDashboard, FolderOpen, Users, FileText, Loader2, AlertTriangle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export const Header: React.FC = () => {
   const { session, activeRole } = useSessionStore();
-  const { isConnected } = usePresence();
+  const { isConnected, connectionState, statusLabel, statusColor, isOnline } = usePresence();
   const { formattedTime } = useSessionTimer();
   const location = useLocation();
 
   const isTeacher = activeRole === 'teacher' || location.pathname.startsWith('/teacher');
+
+  // Connection status indicator config
+  const statusConfig = (() => {
+    if (!isOnline) {
+      return {
+        icon: <WifiOff className="w-3.5 h-3.5 animate-pulse" />,
+        label: 'OFFLINE',
+        bgClass: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+      };
+    }
+    switch (connectionState) {
+      case 'CONNECTED':
+        return {
+          icon: <Wifi className="w-3.5 h-3.5" />,
+          label: 'LIVE',
+          bgClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        };
+      case 'CONNECTING':
+        return {
+          icon: <Loader2 className="w-3.5 h-3.5 animate-spin" />,
+          label: 'CONNECTING',
+          bgClass: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+        };
+      case 'RECONNECTING':
+        return {
+          icon: <WifiOff className="w-3.5 h-3.5 animate-pulse" />,
+          label: 'RECONNECTING',
+          bgClass: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        };
+      case 'FAILED':
+        return {
+          icon: <AlertTriangle className="w-3.5 h-3.5" />,
+          label: 'FAILED',
+          bgClass: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        };
+      default:
+        return {
+          icon: <WifiOff className="w-3.5 h-3.5" />,
+          label: 'DISCONNECTED',
+          bgClass: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
+        };
+    }
+  })();
 
   return (
     <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border px-4 lg:px-8 py-3 transition-colors">
@@ -90,22 +133,10 @@ export const Header: React.FC = () => {
             </div>
           )}
 
-          <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${
-            isConnected
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-              : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-          }`}>
-            {isConnected ? (
-              <>
-                <Wifi className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">LIVE</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-3.5 h-3.5 animate-pulse" />
-                <span className="hidden sm:inline">RECONNECTING...</span>
-              </>
-            )}
+          {/* Connection Status Badge */}
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusConfig.bgClass}`}>
+            {statusConfig.icon}
+            <span className="hidden sm:inline">{statusConfig.label}</span>
           </div>
         </div>
       </div>

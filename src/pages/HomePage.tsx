@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '../components/common/Header';
+import { LiveClassroomSimulation } from '../components/home/LiveClassroomSimulation';
 import {
   Terminal,
   Users,
@@ -25,8 +26,10 @@ import {
   Brain,
   Shield,
   Database,
-  Compass,
-  Star
+  Star,
+  TrendingUp,
+  Lock,
+  MessageSquare
 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -45,10 +48,10 @@ export const HomePage: React.FC = () => {
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[650px] h-[380px] bg-indigo-600/20 blur-[130px] rounded-full pointer-events-none -z-10" />
           <div className="absolute top-48 right-10 w-[320px] h-[320px] bg-emerald-500/10 blur-[110px] rounded-full pointer-events-none -z-10" />
 
-          {/* Hero Badge */}
+          {/* Startup Showcase Badge */}
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-8 animate-fade-in shadow-lg shadow-indigo-500/5">
             <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
-            <span>Next-Gen Real-Time Coding Classroom & AI Analytics</span>
+            <span>Next-Gen Real-Time Coding Classroom & AI Telemetry Engine</span>
           </div>
 
           {/* Hero Title & Subtitle */}
@@ -144,6 +147,13 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* ========================================================================= */}
+        {/* LIVE ANIMATED CLASSROOM MATRIX SHOWCASE (MOVIE TICKET STYLE DESKS GRID)   */}
+        {/* ========================================================================= */}
+        <section className="w-full max-w-7xl px-4 py-12">
+          <LiveClassroomSimulation />
+        </section>
+
+        {/* ========================================================================= */}
         {/* DEDICATED "ABOUT ME" SECTION FOR SEKHAR (STUNNING MODERN PORTRAIT CARD)   */}
         {/* ========================================================================= */}
         <section className="w-full bg-gradient-to-b from-surface-card/90 via-background to-background border-t border-border/80 py-24 px-4 relative overflow-hidden">
@@ -189,7 +199,7 @@ export const HomePage: React.FC = () => {
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
                   <User className="w-4 h-4 text-indigo-400" />
-                  <span>Developer Profile</span>
+                  <span>Developer & Founder Profile</span>
                 </div>
 
                 <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
@@ -253,7 +263,59 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* ========================================================================= */}
-        {/* ABOUT CODESPHERE AI PLATFORM SECTION                                      */}
+        {/* STARTUP VALUE PROPOSITION & REASON FOR BEING                              */}
+        {/* ========================================================================= */}
+        <section className="w-full max-w-6xl px-4 py-20 border-t border-border/60">
+          <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+              Solving the CS Lab Visibility Problem
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+              Why CodeSphere AI Wins in Educational Technology
+            </h2>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Traditional CS labs force instructors to manually walk between 60+ computer screens or grade static file uploads hours later. CodeSphere AI turns computer labs into live, transparent telemetry streams.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            {/* Card 1 */}
+            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-indigo-500/50 transition-all duration-300 shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                <Activity className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Zero-Delay Telemetry</h3>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Socket.IO streams keystrokes, compiler execution logs, and live Monaco line cursors under 50ms, allowing TAs to spot stuck students before they give up.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-emerald-500/50 transition-all duration-300 shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Zero-Spoiler AI Diagnostic Engine</h3>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Integrated AI provides syntax explanations and guided hints without giving away complete code solutions in problem-solving mode, ensuring genuine learning.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-cyan-500/50 transition-all duration-300 shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Proactive Anti-Cheat Guard</h3>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Monaco editor-level event pipelines intercept copy, paste, cut, and tab-blur events, logging non-destructive audit items on the instructor dashboard timeline.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* ABOUT CODESPHERE AI PLATFORM ARCHITECTURE SECTION                          */}
         {/* ========================================================================= */}
         <section className="w-full bg-surface-card/40 border-t border-border/60 py-16 px-4">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">

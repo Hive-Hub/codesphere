@@ -6,15 +6,16 @@ import { useCompiler } from '../../hooks/useCompiler';
 import { useAI } from '../../hooks/useAI';
 import { useSocket } from '../../hooks/useSocket';
 import { usePresence } from '../../hooks/usePresence';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useSessionStore } from '../../store/sessionStore';
 import { useStudentStore } from '../../store/studentStore';
 import { useEditorStore } from '../../store/editorStore';
 import { useAIStore } from '../../store/aiStore';
 import { Header } from '../../components/common/Header';
+import { DebugPanel } from '../../components/common/DebugPanel';
 import { Modal } from '../../components/common/Modal';
 import { storage } from '../../utils/storage';
 import { socketService } from '../../services/socket';
-import { studentApi } from '../../services/studentApi';
 import Editor from '@monaco-editor/react';
 import {
   Play,
@@ -30,6 +31,11 @@ import {
   MessageSquare,
   WifiOff,
   ShieldAlert,
+  Loader2,
+  RefreshCw,
+  Wifi,
+  RotateCcw,
+  FileCode,
 } from 'lucide-react';
 
 export const StudentWorkspacePage: React.FC = () => {
@@ -37,13 +43,14 @@ export const StudentWorkspacePage: React.FC = () => {
   const sessionId = parseInt(paramSessionId || '1', 10);
   const navigate = useNavigate();
 
-  const { session, problem, sessionEnded, endedReason } = useSessionStore();
-  const { student, warningMessage, setWarningMessage } = useStudentStore();
-  const { loading, error: sessionError } = useStudentSession(sessionId);
-  const { isConnected } = usePresence();
+  const { session, problem, sessionEnded, endedReason, workspaceStatus } = useSessionStore();
+  const { student, studentId, warningMessage, setWarningMessage, draftAvailable, draftCode, setDraftAvailable } = useStudentStore();
+  const { loading, error: sessionError, refetchSessionDetails } = useStudentSession(sessionId);
+  const { isConnected, connectionState, isOnline, statusLabel } = usePresence();
+  const { isOnline: networkOnline, showRestoredBanner } = useNetworkStatus();
 
   const { code, language, handleCodeChange, handleCursorChange, saveCode } = useCodeEditor(sessionId);
-  const { runCode, error: compilerError } = useCompiler(sessionId);
+  const { runCode, error: compilerError, timeoutWarning } = useCompiler(sessionId);
   const { explainError, getHint, reviewCode, error: aiError } = useAI(sessionId);
 
   const {
@@ -53,6 +60,7 @@ export const StudentWorkspacePage: React.FC = () => {
     lastSavedAt,
     isRunning,
     compilerResult,
+    compilerState,
     activeConsoleTab,
     setActiveConsoleTab,
     setCode,
@@ -66,29 +74,36 @@ export const StudentWorkspacePage: React.FC = () => {
   const lastActivityTimeRef = useRef<Record<string, number>>({});
 
   // Initialize socket listener for student role
-  const { socket } = useSocket(sessionId, 'student');
+  useSocket(sessionId, 'student');
 
-  // Cooldown-guarded toast warning & activity reporter
-  const triggerActivityWarning = useCallback((eventType: 'paste_attempt' | 'copy_attempt' | 'cut_attempt' | 'tab_blur' | 'tab_focus', userMsg: string) => {
+  // Stop all socket activity when session ends
+  useEffect(() => {
+    if (sessionEnded) {
+      socketService.stopSessionActivity();
+    }
+  }, [sessionEnded]);
+
+  // Cooldown-guarded toast warning
+  const triggerActivityWarning = useCallback((eventType: string, userMsg: string) => {
     const now = Date.now();
     const lastTime = lastActivityTimeRef.current[eventType] || 0;
 
     if (now - lastTime > 2000) {
       lastActivityTimeRef.current[eventType] = now;
-
       setToastMessage(userMsg);
       setTimeout(() => setToastMessage(null), 3500);
 
-      const studentId = student?.id || storage.getStudentId();
-      if (studentId && sessionId) {
-        socketService.emitActivity(sessionId, studentId, eventType, { timestamp: new Date().toISOString() });
-        studentApi.reportActivity(sessionId, { activity_type: eventType, details: { timestamp: new Date().toISOString() } }).catch(() => {});
+      const sid = student?.id || studentId;
+      if (sid && sessionId) {
+        socketService.emitActivity(sessionId, sid, eventType, { timestamp: new Date().toISOString() });
       }
     }
-  }, [sessionId, student?.id]);
+  }, [sessionId, student?.id, studentId]);
 
   // Tab visibility change tracking
   useEffect(() => {
+    if (sessionEnded) return;
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
         triggerActivityWarning('tab_blur', 'Tab switched. Activity recorded.');
@@ -114,23 +129,27 @@ export const StudentWorkspacePage: React.FC = () => {
       window.removeEventListener('blur', handleWindowBlur);
       window.removeEventListener('focus', handleWindowFocus);
     };
-  }, [triggerActivityWarning]);
+  }, [triggerActivityWarning, sessionEnded]);
 
-  // Restore local draft fallback on mount
-  useEffect(() => {
-    if (student?.id && sessionId) {
-      const draft = storage.getCodeDraft(sessionId, student.id);
-      if (draft && draft.trim().length > 0 && (!code || code.trim().length === 0)) {
-        setCode(draft);
-      }
+  // Handle draft restoration
+  const handleRestoreDraft = () => {
+    if (draftCode) {
+      setCode(draftCode);
+      setDraftAvailable(false, null);
     }
-  }, [student?.id, sessionId]);
+  };
+
+  const handleUseSeverVersion = () => {
+    setDraftAvailable(false, null);
+  };
 
   const handleRun = async () => {
+    if (sessionEnded) return;
     await runCode();
   };
 
   const handleSave = async () => {
+    if (sessionEnded) return;
     await saveCode();
   };
 
@@ -151,15 +170,84 @@ export const StudentWorkspacePage: React.FC = () => {
 
   const currentProgress = student?.progress ?? 0;
 
+  // ─── Loading State: Don't show editor until workspace is READY ───
+  if (loading || workspaceStatus === 'CONNECTING' || workspaceStatus === 'JOINING' || workspaceStatus === 'LOADING') {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-12 h-12 mx-auto text-indigo-400 animate-spin" />
+            <div>
+              <p className="text-lg font-semibold text-white">
+                {workspaceStatus === 'CONNECTING' && 'Connecting to CodeSphere...'}
+                {workspaceStatus === 'JOINING' && 'Joining session...'}
+                {(workspaceStatus === 'LOADING' || loading) && 'Loading workspace...'}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">Please wait while we set up your coding environment.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // ─── Error State: Backend unavailable or session load failed ───
+  if (workspaceStatus === 'ERROR' || sessionError) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4 max-w-md">
+            <AlertTriangle className="w-12 h-12 mx-auto text-rose-400" />
+            <div>
+              <p className="text-lg font-semibold text-white">Unable to load workspace</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {sessionError || 'CodeSphere server is temporarily unavailable. Please try again.'}
+              </p>
+            </div>
+            <button
+              onClick={() => refetchSessionDetails()}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm transition-colors flex items-center gap-2 mx-auto"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Retry
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
       <Header />
 
-      {/* Connection Alert Banner */}
-      {!isConnected && (
+      {/* Network Offline Banner */}
+      {!isOnline && (
+        <div className="bg-rose-500/15 border-b border-rose-500/30 px-4 py-2 text-center text-xs font-semibold text-rose-300 flex items-center justify-center gap-2">
+          <WifiOff className="w-4 h-4 text-rose-400 animate-pulse" />
+          <span>Internet connection lost. Your code is safely saved locally.</span>
+        </div>
+      )}
+
+      {/* Connection Lost Banner (socket disconnected but network online) */}
+      {isOnline && !isConnected && (
         <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center text-xs font-semibold text-amber-300 flex items-center justify-center gap-2">
           <WifiOff className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>Connection Lost. Reconnecting to classroom... Your code is safely saved locally.</span>
+          <span>
+            {connectionState === 'RECONNECTING'
+              ? 'Reconnecting to classroom... Your code is safely saved locally.'
+              : 'Connection lost. Attempting to reconnect...'}
+          </span>
+        </div>
+      )}
+
+      {/* Network Restored Banner */}
+      {showRestoredBanner && (
+        <div className="bg-emerald-500/15 border-b border-emerald-500/30 px-4 py-2 text-center text-xs font-semibold text-emerald-300 flex items-center justify-center gap-2 animate-fade-in">
+          <Wifi className="w-4 h-4 text-emerald-400" />
+          <span>Internet connection restored.</span>
         </div>
       )}
 
@@ -168,6 +256,27 @@ export const StudentWorkspacePage: React.FC = () => {
         <div className="bg-amber-500/90 text-slate-950 font-bold px-4 py-2 text-center text-xs flex items-center justify-center gap-2 shadow-lg animate-bounce sticky top-[65px] z-50">
           <ShieldAlert className="w-4 h-4 text-slate-950" />
           <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Draft Restoration Banner */}
+      {draftAvailable && draftCode && (
+        <div className="bg-indigo-500/15 border-b border-indigo-500/30 px-4 py-3 text-center text-xs font-semibold text-indigo-300 flex items-center justify-center gap-3">
+          <FileCode className="w-4 h-4 text-indigo-400" />
+          <span>Local draft found from a previous session.</span>
+          <button
+            onClick={handleRestoreDraft}
+            className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Restore Draft
+          </button>
+          <button
+            onClick={handleUseSeverVersion}
+            className="px-3 py-1 bg-surface hover:bg-surface-hover border border-border text-gray-300 rounded-lg text-xs font-semibold transition-colors"
+          >
+            Use Server Version
+          </button>
         </div>
       )}
 
@@ -285,16 +394,22 @@ export const StudentWorkspacePage: React.FC = () => {
           <div
             className="bg-surface-card border border-border rounded-2xl overflow-hidden flex flex-col h-[480px] shadow-xl"
             onPaste={(e) => {
-              e.preventDefault();
-              triggerActivityWarning('paste_attempt', 'Paste is disabled during this coding session.');
+              if (!sessionEnded) {
+                e.preventDefault();
+                triggerActivityWarning('paste_attempt', 'Paste is disabled during this coding session.');
+              }
             }}
             onCopy={(e) => {
-              e.preventDefault();
-              triggerActivityWarning('copy_attempt', 'Copying is disabled during this coding session.');
+              if (!sessionEnded) {
+                e.preventDefault();
+                triggerActivityWarning('copy_attempt', 'Copying is disabled during this coding session.');
+              }
             }}
             onCut={(e) => {
-              e.preventDefault();
-              triggerActivityWarning('cut_attempt', 'Cutting is disabled during this coding session.');
+              if (!sessionEnded) {
+                e.preventDefault();
+                triggerActivityWarning('cut_attempt', 'Cutting is disabled during this coding session.');
+              }
             }}
           >
             <div className="bg-surface px-4 py-3 border-b border-border flex items-center justify-between">
@@ -330,27 +445,29 @@ export const StudentWorkspacePage: React.FC = () => {
                     handleCursorChange(e.position.lineNumber, e.position.column);
                   });
 
-                  // Intercept Keyboard Copy/Paste/Cut directly in Monaco Keybinding pipeline
+                  // Intercept Keyboard Copy/Paste/Cut directly in Monaco
                   editor.onKeyDown((e) => {
-                    // Check for Ctrl+V, Cmd+V, Shift+Insert (Paste)
+                    if (sessionEnded) return;
+
+                    // Ctrl+V / Cmd+V / Shift+Insert (Paste)
                     if (
-                      (e.ctrlKey || e.metaKey) && e.keyCode === 52 || // keyCode 52 = V
-                      (e.shiftKey && e.keyCode === 45) // keyCode 45 = Insert
+                      (e.ctrlKey || e.metaKey) && e.keyCode === 52 ||
+                      (e.shiftKey && e.keyCode === 45)
                     ) {
                       e.preventDefault();
                       e.stopPropagation();
                       triggerActivityWarning('paste_attempt', 'Paste is disabled during this coding session.');
                     }
 
-                    // Check for Ctrl+C, Cmd+C (Copy)
-                    if ((e.ctrlKey || e.metaKey) && e.keyCode === 33) { // keyCode 33 = C
+                    // Ctrl+C / Cmd+C (Copy)
+                    if ((e.ctrlKey || e.metaKey) && e.keyCode === 33) {
                       e.preventDefault();
                       e.stopPropagation();
                       triggerActivityWarning('copy_attempt', 'Copying is disabled during this coding session.');
                     }
 
-                    // Check for Ctrl+X, Cmd+X (Cut)
-                    if ((e.ctrlKey || e.metaKey) && e.keyCode === 54) { // keyCode 54 = X
+                    // Ctrl+X / Cmd+X (Cut)
+                    if ((e.ctrlKey || e.metaKey) && e.keyCode === 54) {
                       e.preventDefault();
                       e.stopPropagation();
                       triggerActivityWarning('cut_attempt', 'Cutting is disabled during this coding session.');
@@ -359,7 +476,7 @@ export const StudentWorkspacePage: React.FC = () => {
                 }}
                 options={{
                   readOnly: sessionEnded,
-                  contextmenu: false, // Disable right-click context menu (prevents right-click paste)
+                  contextmenu: false,
                   minimap: { enabled: true },
                   scrollBeyondLastLine: false,
                   fontSize: 14,
@@ -378,7 +495,11 @@ export const StudentWorkspacePage: React.FC = () => {
                 disabled={isRunning || sessionEnded}
                 className="py-2.5 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 disabled:opacity-50"
               >
-                <Play className={`w-4 h-4 fill-white ${isRunning ? 'animate-spin' : ''}`} />
+                {isRunning ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Play className="w-4 h-4 fill-white" />
+                )}
                 <span>{isRunning ? 'RUNNING...' : 'Run Code'}</span>
               </button>
 
@@ -392,12 +513,40 @@ export const StudentWorkspacePage: React.FC = () => {
               </button>
             </div>
 
-            {sessionEnded && (
-              <span className="text-xs text-rose-400 font-semibold flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 rounded-full border border-rose-500/20">
-                <Lock className="w-3.5 h-3.5" />
-                SESSION ENDED
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {/* Timeout Warning */}
+              {timeoutWarning && (
+                <span className="text-xs text-amber-400 font-semibold flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 rounded-full border border-amber-500/20 animate-pulse">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Execution taking longer than expected
+                </span>
+              )}
+
+              {/* Compiler State Badge */}
+              {compilerState !== 'idle' && compilerState !== 'running' && (
+                <span className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full border ${
+                  compilerState === 'success'
+                    ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                    : compilerState === 'unavailable'
+                    ? 'text-gray-400 bg-gray-500/10 border-gray-500/20'
+                    : 'text-rose-400 bg-rose-500/10 border-rose-500/20'
+                }`}>
+                  {compilerState === 'success' ? '✓ SUCCESS' :
+                   compilerState === 'compilation_error' ? '✗ COMPILATION ERROR' :
+                   compilerState === 'runtime_error' ? '✗ RUNTIME ERROR' :
+                   compilerState === 'timeout' ? '⏱ TIMEOUT' :
+                   compilerState === 'unavailable' ? '⚠ COMPILER UNAVAILABLE' :
+                   compilerState === 'network_error' ? '⚠ NETWORK ERROR' : ''}
+                </span>
+              )}
+
+              {sessionEnded && (
+                <span className="text-xs text-rose-400 font-semibold flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 rounded-full border border-rose-500/20">
+                  <Lock className="w-3.5 h-3.5" />
+                  SESSION ENDED
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Console Terminal Container */}
@@ -447,6 +596,9 @@ export const StudentWorkspacePage: React.FC = () => {
                   </span>
                   {compilerResult.execution_time && (
                     <span>Time: <strong className="text-indigo-400">{compilerResult.execution_time}</strong></span>
+                  )}
+                  {compilerResult.memory && (
+                    <span>Memory: <strong className="text-cyan-400">{compilerResult.memory}</strong></span>
                   )}
                 </div>
               )}
@@ -573,6 +725,9 @@ export const StudentWorkspacePage: React.FC = () => {
           </button>
         </div>
       </Modal>
+
+      {/* Debug Panel (dev only) */}
+      <DebugPanel />
     </div>
   );
 };

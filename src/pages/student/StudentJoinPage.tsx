@@ -13,7 +13,7 @@ import { useSessionStore } from '../../store/sessionStore';
 import { parseApiError } from '../../utils/errors';
 import { Header } from '../../components/common/Header';
 import { PinInput } from '../../components/student/PinInput';
-import { Users, ArrowRight, User, Hash, Building, BookOpen, Layers, CheckCircle2 } from 'lucide-react';
+import { Users, ArrowRight, User, Hash, Building, BookOpen, Layers, CheckCircle2, Loader2 } from 'lucide-react';
 
 export const StudentJoinPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,13 +22,24 @@ export const StudentJoinPage: React.FC = () => {
   const [sessionDetails, setSessionDetails] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [backendReady, setBackendReady] = useState<boolean | null>(null);
 
   const { setStudentData } = useStudentStore();
-  const { setSession, setActiveRole } = useSessionStore();
+  const { setSession, setActiveRole, setWorkspaceStatus } = useSessionStore();
 
-  // Pre-warm Render backend on page load to eliminate cold start delay
+  // Pre-warm Render backend on page load
   useEffect(() => {
-    apiClient.get('/health').catch(() => {});
+    setBackendReady(null);
+    apiClient.get('/health')
+      .then(() => setBackendReady(true))
+      .catch(() => {
+        // Retry once after 3 seconds (cold start)
+        setTimeout(() => {
+          apiClient.get('/health')
+            .then(() => setBackendReady(true))
+            .catch(() => setBackendReady(false));
+        }, 3000);
+      });
   }, []);
 
   const {
@@ -75,27 +86,35 @@ export const StudentJoinPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
+      setWorkspaceStatus('JOINING');
+
       const res = await studentApi.joinSession(data);
       if (res.success && res.data) {
         const { student_token, student, session } = res.data;
-
-        // Store student token and IDs
-        storage.setActiveRole('student');
-        storage.setStudentToken(student_token);
         const sId = (session as any).session_id || session.id;
-        storage.setSessionId(sId);
-        storage.setStudentId(student.id);
+
+        // Store everything in the consolidated student store BEFORE navigation
+        storage.setActiveRole('student');
+        setActiveRole('student');
+
+        // Use the consolidated store method which persists to storage
+        setStudentData(student, student_token, sId);
+
+        // Also store session info for the session store
         storage.setSessionInfo({ student, session, student_token });
 
-        setActiveRole('student');
-        setStudentData(student, student_token);
+        // Set workspace status before navigation
+        setWorkspaceStatus('LOADING');
 
+        // Navigate — the workspace page will pick up from the store
         navigate(`/student/session/${sId}`);
       } else {
         setError(res.message || 'Failed to join session');
+        setWorkspaceStatus('ERROR');
       }
     } catch (err: any) {
       setError(parseApiError(err));
+      setWorkspaceStatus('ERROR');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,6 +125,14 @@ export const StudentJoinPage: React.FC = () => {
       <Header />
 
       <main className="flex-1 max-w-xl mx-auto px-4 py-8 sm:py-12 w-full flex flex-col items-center justify-center">
+        {/* Backend health warning */}
+        {backendReady === false && (
+          <div className="w-full mb-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs sm:text-sm text-center">
+            <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin" />
+            CodeSphere server is warming up. This may take a moment...
+          </div>
+        )}
+
         <div className="bg-surface-card border border-border rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 w-full">
           {/* Header */}
           <div className="flex items-center gap-4 pb-6 border-b border-border">
@@ -255,8 +282,17 @@ export const StudentJoinPage: React.FC = () => {
               disabled={isSubmitting || sessionCode.length !== 6}
               className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-base transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <span>{isSubmitting ? 'Joining Session...' : 'Enter Student Workspace'}</span>
-              <ArrowRight className="w-5 h-5" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Joining Session...</span>
+                </>
+              ) : (
+                <>
+                  <span>Enter Student Workspace</span>
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
             </button>
           </form>
         </div>

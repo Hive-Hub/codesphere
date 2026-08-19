@@ -1,3 +1,13 @@
+export type CompilerState =
+  | 'idle'
+  | 'running'
+  | 'success'
+  | 'compilation_error'
+  | 'runtime_error'
+  | 'timeout'
+  | 'unavailable'
+  | 'network_error';
+
 export interface CodeRunPayload {
   language: 'python' | 'c' | 'java';
   code: string;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { socketService } from '../services/socket';
 import { useTeacherStore } from '../store/teacherStore';
 import { useSessionStore } from '../store/sessionStore';
@@ -10,6 +10,15 @@ import {
   ServerSessionEndedEvent,
 } from '../types/websocket';
 
+/**
+ * useSocket — sets up Socket.IO event listeners for teacher and student roles.
+ *
+ * - For teacher: listens for student presence, code updates, typing, cursor, activity
+ * - For student: listens for session_ended, problem_updated
+ * - Both: listens for session_ended
+ *
+ * Uses off/on pattern to prevent duplicate listeners on re-render.
+ */
 export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
   const {
     updateStudentPresence,
@@ -19,59 +28,72 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
     addActivityItem,
   } = useTeacherStore();
 
-  const { setSessionEnded } = useSessionStore();
+  const { setSessionEnded, setProblem } = useSessionStore();
+
+  // Track if we've already set up for this session to prevent double-registration
+  const setupRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!sessionId || !role) return;
 
-    // Connect & Join room based on role
+    const setupKey = `${sessionId}-${role}`;
+    if (setupRef.current === setupKey) return; // Already set up
+    setupRef.current = setupKey;
+
+    // ── Teacher joins the session room via socket ──
     if (role === 'teacher') {
       socketService.joinAsTeacher(sessionId);
     }
 
-    // Set up broadcast event handlers
+    // ── Shared: Session ended ──
+    const handleSessionEnded = (data: ServerSessionEndedEvent) => {
+      console.log('[Socket] session_ended received:', data);
+      const reason = data.reason === '24_hour_expired'
+        ? '24-hour session limit expired'
+        : 'Teacher ended session';
+      setSessionEnded(true, reason);
+
+      // Stop all session activity on the socket
+      socketService.stopSessionActivity();
+    };
+
+    // ── Teacher-specific listeners ──
     const handleStudentJoined = (data: ServerStudentPresenceEvent) => {
-      console.log(`[Socket] student_joined received for studentId: ${data.student_id}`);
-      updateStudentPresence(data.student_id, 'online', data.name, data.roll_number);
+      console.log(`[Socket] student_joined/online: student_id=${data.student_id}, name=${data.name || data.student_name}`);
+      const name = data.name || data.student_name;
+      updateStudentPresence(data.student_id, 'online', name, data.roll_number);
       addActivityItem({
-        id: Math.random().toString(36).substring(2, 9),
+        id: `${data.student_id}-joined-${Date.now()}`,
         timestamp: new Date().toLocaleTimeString(),
-        student_name: data.name,
+        student_name: name,
         student_id: data.student_id,
         event_type: 'student_joined',
-        message: `${data.name || 'A student'} joined the session`,
+        message: `${name || 'A student'} joined the session`,
         category: 'presence',
       });
     };
 
     const handleStudentLeft = (data: ServerStudentPresenceEvent) => {
-      console.log(`[Socket] student_left received for studentId: ${data.student_id}`);
+      console.log(`[Socket] student_left/offline: student_id=${data.student_id}`);
+      const name = data.name || data.student_name;
       updateStudentPresence(data.student_id, 'offline');
       addActivityItem({
-        id: Math.random().toString(36).substring(2, 9),
+        id: `${data.student_id}-left-${Date.now()}`,
         timestamp: new Date().toLocaleTimeString(),
-        student_name: data.name,
+        student_name: name,
         student_id: data.student_id,
         event_type: 'student_left',
-        message: `${data.name || 'A student'} left the session`,
+        message: `${name || 'A student'} left the session`,
         category: 'presence',
       });
     };
 
     const handleCodeUpdated = (data: ServerStudentCodeUpdateEvent) => {
-      console.log(`[Socket] student_code_updated received for studentId: ${data.student_id}, codeLength: ${data.code?.length}`);
-      updateStudentCode(data.student_id, data.code);
+      if (!data.code && data.code !== '') return; // Guard against empty events
+      updateStudentCode(data.student_id, data.code, data.version);
       if (data.cursor) {
         updateStudentCursor(data.student_id, data.cursor.line, data.cursor.column);
       }
-      addActivityItem({
-        id: Math.random().toString(36).substring(2, 9),
-        timestamp: new Date().toLocaleTimeString(),
-        student_id: data.student_id,
-        event_type: 'code_updated',
-        message: `Code updated by student #${data.student_id}`,
-        category: 'code',
-      });
     };
 
     const handleTyping = (data: ServerStudentTypingEvent) => {
@@ -100,7 +122,7 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
       }
 
       addActivityItem({
-        id: Math.random().toString(36).substring(2, 9),
+        id: `${data.student_id}-${data.event_type}-${Date.now()}`,
         timestamp: new Date().toLocaleTimeString(),
         student_id: data.student_id,
         event_type: data.event_type,
@@ -110,33 +132,53 @@ export function useSocket(sessionId?: number, role?: 'teacher' | 'student') {
       });
     };
 
-    const handleSessionEnded = (data: ServerSessionEndedEvent) => {
-      setSessionEnded(true, data.reason === '24_hour_expired' ? '24-hour session limit expired' : 'Teacher ended session');
+    // ── Student-specific: problem updates ──
+    const handleProblemUpdated = (data: any) => {
+      if (data.problem) {
+        setProblem(data.problem);
+      }
     };
 
-    // Attach listeners
-    socketService.on('student_joined', handleStudentJoined);
-    socketService.on('student_online', handleStudentJoined);
-    socketService.on('student_left', handleStudentLeft);
-    socketService.on('student_offline', handleStudentLeft);
-    socketService.on('student_code_updated', handleCodeUpdated);
-    socketService.on('student_typing', handleTyping);
-    socketService.on('student_stopped_typing', handleTyping);
-    socketService.on('student_cursor_updated', handleCursor);
-    socketService.on('student_activity', handleStudentActivity);
+    // ── Register event listeners (off then on to prevent duplicates) ──
     socketService.on('session_ended', handleSessionEnded);
 
+    if (role === 'teacher') {
+      socketService.on('student_joined', handleStudentJoined);
+      socketService.on('student_online', handleStudentJoined);
+      socketService.on('student_left', handleStudentLeft);
+      socketService.on('student_offline', handleStudentLeft);
+      socketService.on('student_code_updated', handleCodeUpdated);
+      socketService.on('student_typing', handleTyping);
+      socketService.on('student_stopped_typing', handleTyping);
+      socketService.on('student_cursor_updated', handleCursor);
+      socketService.on('student_activity', handleStudentActivity);
+    }
+
+    if (role === 'student') {
+      socketService.on('problem_updated', handleProblemUpdated);
+    }
+
+    // ── Cleanup ──
     return () => {
-      socketService.off('student_joined', handleStudentJoined);
-      socketService.off('student_online', handleStudentJoined);
-      socketService.off('student_left', handleStudentLeft);
-      socketService.off('student_offline', handleStudentLeft);
-      socketService.off('student_code_updated', handleCodeUpdated);
-      socketService.off('student_typing', handleTyping);
-      socketService.off('student_stopped_typing', handleTyping);
-      socketService.off('student_cursor_updated', handleCursor);
-      socketService.off('student_activity', handleStudentActivity);
+      setupRef.current = null;
+
       socketService.off('session_ended', handleSessionEnded);
+
+      if (role === 'teacher') {
+        socketService.off('student_joined', handleStudentJoined);
+        socketService.off('student_online', handleStudentJoined);
+        socketService.off('student_left', handleStudentLeft);
+        socketService.off('student_offline', handleStudentLeft);
+        socketService.off('student_code_updated', handleCodeUpdated);
+        socketService.off('student_typing', handleTyping);
+        socketService.off('student_stopped_typing', handleTyping);
+        socketService.off('student_cursor_updated', handleCursor);
+        socketService.off('student_activity', handleStudentActivity);
+      }
+
+      if (role === 'student') {
+        socketService.off('problem_updated', handleProblemUpdated);
+      }
     };
   }, [sessionId, role]);
 

@@ -4,6 +4,7 @@ import { useTeacherSession } from '../../hooks/useTeacherSession';
 import { useSocket } from '../../hooks/useSocket';
 import { useSessionStore } from '../../store/sessionStore';
 import { Header } from '../../components/common/Header';
+import { DebugPanel } from '../../components/common/DebugPanel';
 import { OverviewSection } from '../../components/dashboard/OverviewSection';
 import { StudentsSection } from '../../components/dashboard/StudentsSection';
 import { LiveActivitySection } from '../../components/dashboard/LiveActivitySection';
@@ -22,10 +23,10 @@ export const TeacherDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [showProblemModal, setShowProblemModal] = useState<boolean>(false);
 
-  const { error, refetchDashboard } = useTeacherSession(sessionId);
+  const { error, refetchDashboard, reconcile } = useTeacherSession(sessionId);
   const { session, problem, setProblem } = useSessionStore();
 
-  // Socket connection for teacher role
+  // Socket connection for teacher role — sets up all event listeners
   useSocket(sessionId, 'teacher');
 
   const tabs = [
@@ -112,6 +113,9 @@ export const TeacherDashboardPage: React.FC = () => {
         existingProblem={problem}
         onProblemSaved={(updatedProblem) => setProblem(updatedProblem)}
       />
+
+      {/* Debug Panel (dev only) */}
+      <DebugPanel />
     </div>
   );
 };

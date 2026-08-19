@@ -7,8 +7,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://codesphere-ba
 
 export const compilerApi = {
   runCode: async (sessionId: number, payload: CodeRunPayload): Promise<ApiResponse<CompilerResult>> => {
-    storage.setActiveRole('student');
-
     const formattedPayload = {
       language: payload.language.toLowerCase().trim() as 'python' | 'c' | 'java',
       code: payload.code,
@@ -22,7 +20,7 @@ export const compilerApi = {
       );
       return res.data;
     } catch (axiosErr) {
-      console.warn('[compilerApi.runCode] Axios error, using native fetch fallback...', axiosErr);
+      console.warn('[compilerApi.runCode] Axios request failed, trying fetch fallback...', axiosErr);
       const token = storage.getStudentToken();
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
@@ -38,8 +36,6 @@ export const compilerApi = {
   },
 
   saveCode: async (sessionId: number, payload: CodeSavePayload): Promise<ApiResponse<{ version?: number; saved_at?: string; saved?: boolean; timestamp?: string }>> => {
-    storage.setActiveRole('student');
-
     const formattedPayload = {
       language: payload.language.toLowerCase().trim() as 'python' | 'c' | 'java',
       code: payload.code,
