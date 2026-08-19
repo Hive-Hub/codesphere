@@ -41,21 +41,22 @@ export const HomePage: React.FC = () => {
       <main className="flex-1 flex flex-col items-center">
         
         {/* ========================================================================= */}
-        {/* HERO SECTION WITH DYNAMIC GLASSMORPHISM & REAL-TIME BADGE                 */}
+        {/* HERO SECTION WITH 3D DEPTH GLASSMORPHISM & AMBIENT FLOATING ELEMENTS      */}
         {/* ========================================================================= */}
-        <section className="relative w-full max-w-7xl px-4 py-16 md:py-24 flex flex-col items-center text-center overflow-hidden">
-          {/* Ambient Lighting Accents */}
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[650px] h-[380px] bg-indigo-600/20 blur-[130px] rounded-full pointer-events-none -z-10" />
-          <div className="absolute top-48 right-10 w-[320px] h-[320px] bg-emerald-500/10 blur-[110px] rounded-full pointer-events-none -z-10" />
+        <section className="relative w-full max-w-7xl px-4 py-16 md:py-24 flex flex-col items-center text-center overflow-hidden perspective-1000">
+          {/* 3D Dynamic Ambient Lighting & Floating Orbs */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-indigo-600/20 blur-[140px] rounded-full pointer-events-none -z-10 animate-pulse-slow" />
+          <div className="absolute top-48 right-10 w-[350px] h-[350px] bg-emerald-500/15 blur-[120px] rounded-full pointer-events-none -z-10 animate-float" />
+          <div className="absolute top-72 left-10 w-[300px] h-[300px] bg-cyan-500/15 blur-[110px] rounded-full pointer-events-none -z-10 animate-float" style={{ animationDelay: '2s' }} />
 
-          {/* Startup Showcase Badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-8 animate-fade-in shadow-lg shadow-indigo-500/5">
+          {/* Hero Startup Badge */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-8 shadow-xl shadow-indigo-500/10 animate-float">
             <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
             <span>Next-Gen Real-Time Coding Classroom & AI Telemetry Engine</span>
           </div>
 
-          {/* Hero Title & Subtitle */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-5xl leading-[1.15]">
+          {/* Hero Title & Subtitle with 3D Depth Styling */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-5xl leading-[1.15] drop-shadow-2xl">
             Transform Code Instruction with{' '}
             <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
               Live AI Intelligence
@@ -70,31 +71,31 @@ export const HomePage: React.FC = () => {
             CodeSphere AI bridges the gap between students and teachers in computer science labs. Inspect live Monaco Editor cursors, monitor execution runs, detect stuck students instantly, and generate PDF/Excel classroom reports.
           </p>
 
-          {/* Real-time Metrics Strip */}
+          {/* 3D Real-time Metrics Cards Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-4xl mt-10">
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
+            <div className="p-4 bg-surface-card/70 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-xl card-3d-tilt">
               <span className="text-2xl font-bold font-mono text-indigo-400">100%</span>
               <span className="text-xs text-gray-400 block mt-0.5">Real-Time Sync</span>
             </div>
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
+            <div className="p-4 bg-surface-card/70 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-xl card-3d-tilt">
               <span className="text-2xl font-bold font-mono text-emerald-400">&lt;50ms</span>
               <span className="text-xs text-gray-400 block mt-0.5">Socket.IO Latency</span>
             </div>
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
+            <div className="p-4 bg-surface-card/70 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-xl card-3d-tilt">
               <span className="text-2xl font-bold font-mono text-cyan-400">3 Languages</span>
               <span className="text-xs text-gray-400 block mt-0.5">Python • C • Java</span>
             </div>
-            <div className="p-4 bg-surface-card/60 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-lg">
+            <div className="p-4 bg-surface-card/70 backdrop-blur-md rounded-2xl border border-border/80 text-center shadow-xl card-3d-tilt">
               <span className="text-2xl font-bold font-mono text-amber-400">AI Powered</span>
               <span className="text-xs text-gray-400 block mt-0.5">Automated Diagnostics</span>
             </div>
           </div>
 
-          {/* Role Selection Portals */}
+          {/* 3D Role Selection Portals */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mt-14 text-left">
-            {/* Teacher Card */}
-            <div className="relative group p-8 rounded-3xl bg-surface-card/80 backdrop-blur-xl border border-border/80 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/15 flex flex-col justify-between space-y-6">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all pointer-events-none" />
+            {/* Teacher 3D Portal Card */}
+            <div className="relative group p-8 rounded-3xl bg-surface-card/90 backdrop-blur-xl border border-border/80 hover:border-indigo-500/60 transition-all duration-500 shadow-2xl hover:shadow-indigo-500/20 card-3d-tilt flex flex-col justify-between space-y-6">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-indigo-500/15 rounded-full blur-2xl group-hover:bg-indigo-500/25 transition-all pointer-events-none" />
               
               <div className="space-y-4 relative z-10">
                 <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -111,16 +112,16 @@ export const HomePage: React.FC = () => {
 
               <Link
                 to="/teacher"
-                className="relative z-10 inline-flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-600/25 group-hover:gap-3"
+                className="relative z-10 inline-flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all shadow-xl shadow-indigo-600/30 group-hover:gap-3"
               >
                 <span>Create Classroom Session</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
-            {/* Student Card */}
-            <div className="relative group p-8 rounded-3xl bg-surface-card/80 backdrop-blur-xl border border-border/80 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/15 flex flex-col justify-between space-y-6">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all pointer-events-none" />
+            {/* Student 3D Portal Card */}
+            <div className="relative group p-8 rounded-3xl bg-surface-card/90 backdrop-blur-xl border border-border/80 hover:border-emerald-500/60 transition-all duration-500 shadow-2xl hover:shadow-emerald-500/20 card-3d-tilt flex flex-col justify-between space-y-6">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-500/15 rounded-full blur-2xl group-hover:bg-emerald-500/25 transition-all pointer-events-none" />
 
               <div className="space-y-4 relative z-10">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -137,7 +138,7 @@ export const HomePage: React.FC = () => {
 
               <Link
                 to="/student"
-                className="relative z-10 inline-flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-lg shadow-emerald-600/25 group-hover:gap-3"
+                className="relative z-10 inline-flex items-center justify-center gap-2.5 w-full py-4 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-xl shadow-emerald-600/30 group-hover:gap-3"
               >
                 <span>Join Coding Classroom</span>
                 <ArrowRight className="w-4 h-4" />
@@ -154,20 +155,20 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* ========================================================================= */}
-        {/* DEDICATED "ABOUT ME" SECTION FOR SEKHAR (STUNNING MODERN PORTRAIT CARD)   */}
+        {/* DEDICATED "ABOUT ME" SECTION FOR SEKHAR (3D PORTRAIT CARD & BENTO TILES)  */}
         {/* ========================================================================= */}
-        <section className="w-full bg-gradient-to-b from-surface-card/90 via-background to-background border-t border-border/80 py-24 px-4 relative overflow-hidden">
+        <section className="w-full bg-gradient-to-b from-surface-card/90 via-background to-background border-t border-border/80 py-24 px-4 relative overflow-hidden perspective-1000">
           {/* Ambient Lighting Backdrops */}
           <div className="absolute top-1/2 left-10 -translate-y-1/2 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-[140px] pointer-events-none" />
           <div className="absolute bottom-10 right-10 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
-            {/* Left Column: Ultra-Modern Edge-to-Edge Portrait Frame */}
+            {/* Left Column: Ultra-Modern 3D Edge-to-Edge Portrait Frame */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative group w-full max-w-sm sm:max-w-md">
+              <div className="relative group w-full max-w-sm sm:max-w-md card-3d-tilt">
                 {/* Glowing Outer Frame Gradient */}
-                <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-500 via-cyan-400 to-emerald-400 rounded-[32px] blur-xl opacity-50 group-hover:opacity-85 transition duration-700" />
+                <div className="absolute -inset-2.5 bg-gradient-to-tr from-indigo-500 via-cyan-400 to-emerald-400 rounded-[34px] blur-xl opacity-60 group-hover:opacity-90 transition duration-700 animate-pulse-slow" />
                 
                 {/* Image Container Card */}
                 <div className="relative rounded-[28px] overflow-hidden border border-indigo-500/30 bg-slate-950 shadow-2xl aspect-[3/4]">
@@ -178,7 +179,7 @@ export const HomePage: React.FC = () => {
                   />
 
                   {/* Gradient Overlay at Bottom for Overlay Info */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent p-6 pt-16 flex flex-col justify-end text-left space-y-1">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-transparent p-6 pt-16 flex flex-col justify-end text-left space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
                       <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
@@ -194,7 +195,7 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column: Sekhar's Exact Bio & Interactive Bento Skill Grid */}
+            {/* Right Column: Sekhar's Exact Bio & 3D Interactive Bento Skill Grid */}
             <div className="lg:col-span-7 space-y-8 text-left">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
@@ -220,39 +221,39 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 6 Skill Bento Cards */}
+              {/* 6 3D Skill Bento Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-indigo-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-indigo-500/60 transition-all duration-300 space-y-1.5 shadow-xl card-3d-tilt group">
                   <Brain className="w-6 h-6 text-indigo-400 group-hover:scale-110 transition-transform" />
                   <h4 className="text-xs font-bold text-white">Artificial Intelligence</h4>
                   <p className="text-[11px] text-gray-400">ML & Deep Learning</p>
                 </div>
 
-                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-emerald-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-emerald-500/60 transition-all duration-300 space-y-1.5 shadow-xl card-3d-tilt group">
                   <Code2 className="w-6 h-6 text-emerald-400 group-hover:scale-110 transition-transform" />
                   <h4 className="text-xs font-bold text-white">Software Dev</h4>
                   <p className="text-[11px] text-gray-400">Python, C & Web</p>
                 </div>
 
-                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-cyan-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-cyan-500/60 transition-all duration-300 space-y-1.5 shadow-xl card-3d-tilt group">
                   <Shield className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
                   <h4 className="text-xs font-bold text-white">Cybersecurity</h4>
                   <p className="text-[11px] text-gray-400">Secure Systems</p>
                 </div>
 
-                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-amber-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-amber-500/60 transition-all duration-300 space-y-1.5 shadow-xl card-3d-tilt group">
                   <Database className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform" />
                   <h4 className="text-xs font-bold text-white">Data Science</h4>
                   <p className="text-[11px] text-gray-400">B.Tech Specialization</p>
                 </div>
 
-                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-purple-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-purple-500/60 transition-all duration-300 space-y-1.5 shadow-xl card-3d-tilt group">
                   <Globe className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                   <h4 className="text-xs font-bold text-white">Web Development</h4>
                   <p className="text-[11px] text-gray-400">Full-Stack Apps</p>
                 </div>
 
-                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-rose-500/50 transition-all duration-300 space-y-1.5 shadow-lg group">
+                <div className="p-4 bg-surface-card/90 rounded-2xl border border-border/80 hover:border-rose-500/60 transition-all duration-300 space-y-1.5 shadow-xl card-3d-tilt group">
                   <Zap className="w-6 h-6 text-rose-400 group-hover:scale-110 transition-transform" />
                   <h4 className="text-xs font-bold text-white">Real-World Projects</h4>
                   <p className="text-[11px] text-gray-400">Practical Solutions</p>
@@ -280,7 +281,7 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
             {/* Card 1 */}
-            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-indigo-500/50 transition-all duration-300 shadow-xl">
+            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-indigo-500/50 transition-all duration-300 shadow-xl card-3d-tilt">
               <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
                 <Activity className="w-6 h-6" />
               </div>
@@ -291,7 +292,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Card 2 */}
-            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-emerald-500/50 transition-all duration-300 shadow-xl">
+            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-emerald-500/50 transition-all duration-300 shadow-xl card-3d-tilt">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
                 <Sparkles className="w-6 h-6" />
               </div>
@@ -302,7 +303,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Card 3 */}
-            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-cyan-500/50 transition-all duration-300 shadow-xl">
+            <div className="p-6 rounded-3xl bg-surface-card border border-border/80 space-y-4 hover:border-cyan-500/50 transition-all duration-300 shadow-xl card-3d-tilt">
               <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
                 <ShieldCheck className="w-6 h-6" />
               </div>
@@ -358,9 +359,9 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Col: Architecture Card */}
+            {/* Right Col: 3D Architecture Card */}
             <div className="lg:col-span-5">
-              <div className="p-8 rounded-3xl bg-gradient-to-b from-surface-card to-background border border-border shadow-2xl relative overflow-hidden space-y-6 text-left">
+              <div className="p-8 rounded-3xl bg-gradient-to-b from-surface-card to-background border border-border shadow-2xl relative overflow-hidden space-y-6 text-left card-3d-tilt">
                 <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-2xl shadow-inner">
                   <Cpu className="w-7 h-7" />
                 </div>
@@ -423,7 +424,7 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
             {/* Step 1 */}
-            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left card-3d-tilt">
               <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-indigo-600/30">
                 01
               </div>
@@ -434,7 +435,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Step 2 */}
-            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left card-3d-tilt">
               <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-600/30">
                 02
               </div>
@@ -445,7 +446,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Step 3 */}
-            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border/80 space-y-4 relative text-left card-3d-tilt">
               <div className="w-10 h-10 rounded-xl bg-cyan-600 text-white font-bold text-sm flex items-center justify-center shadow-lg shadow-cyan-600/30">
                 03
               </div>
@@ -467,37 +468,37 @@ export const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3 card-3d-tilt">
               <Terminal className="w-6 h-6 text-indigo-400" />
               <h4 className="text-base font-bold text-white">Monaco Editor Engine</h4>
               <p className="text-xs text-gray-400 leading-relaxed">VS Code powered editor with syntax highlighting, indentation, and custom keyboard shortcuts for Python, C, and Java.</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3 card-3d-tilt">
               <ShieldCheck className="w-6 h-6 text-emerald-400" />
               <h4 className="text-base font-bold text-white">Anti-Cheat Activity Tracking</h4>
               <p className="text-xs text-gray-400 leading-relaxed">Detects copy, paste, cut, tab blur, and tab focus events, recording non-destructive activity warnings on the teacher timeline.</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3 card-3d-tilt">
               <FileCheck className="w-6 h-6 text-cyan-400" />
               <h4 className="text-base font-bold text-white">Binary PDF & Excel Reports</h4>
               <p className="text-xs text-gray-400 leading-relaxed">Generates comprehensive post-session digital reports containing student execution counts, AI scores, and code snapshots.</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3 card-3d-tilt">
               <Sparkles className="w-6 h-6 text-amber-400" />
               <h4 className="text-base font-bold text-white">Context-Aware AI Guidance</h4>
               <p className="text-xs text-gray-400 leading-relaxed">Provides targeted hint generation, syntax error explanations, and code reviews while enforcing problem-mode solution restrictions.</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3 card-3d-tilt">
               <Layers className="w-6 h-6 text-rose-400" />
               <h4 className="text-base font-bold text-white">Offline Local Draft Recovery</h4>
               <p className="text-xs text-gray-400 leading-relaxed">Automatically backs up student code to localStorage on every edit, guaranteeing zero data loss during network drops.</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3">
+            <div className="p-6 rounded-2xl bg-surface-card border border-border space-y-3 card-3d-tilt">
               <Clock className="w-6 h-6 text-purple-400" />
               <h4 className="text-base font-bold text-white">Automated Session Expiration</h4>
               <p className="text-xs text-gray-400 leading-relaxed">Sessions auto-expire after 24 hours, locking student workspaces to read-only state and initiating automated report generation.</p>

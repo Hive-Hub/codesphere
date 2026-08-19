@@ -79,4 +79,10 @@ export const router = createBrowserRouter([
     path: '/student/ended',
     element: <StudentEndedPage />,
   },
+
+  // Catch-all Wildcard Route for Reload / Unknown URLs
+  {
+    path: '*',
+    element: <HomePage />,
+  },
 ]);

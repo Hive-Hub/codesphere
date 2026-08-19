@@ -181,7 +181,7 @@ export const LiveClassroomSimulation: React.FC = () => {
   const activeStudent = students.find((s) => s.id === selectedStudentId) || students[0];
 
   return (
-    <div className="w-full bg-surface-card/90 border border-border/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 relative overflow-hidden text-left">
+    <div className="w-full bg-surface-card/90 border border-border/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 relative overflow-hidden text-left card-3d-tilt">
       {/* Dynamic Background Glow */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -232,10 +232,10 @@ export const LiveClassroomSimulation: React.FC = () => {
                 <button
                   key={st.id}
                   onClick={() => setSelectedStudentId(st.id)}
-                  className={`relative p-4 rounded-2xl border transition-all duration-300 text-left space-y-2 group ${
+                  className={`relative p-4 rounded-2xl border transition-all duration-300 text-left space-y-2 group card-3d-tilt ${
                     isSelected
-                      ? 'bg-indigo-600/20 border-indigo-500 shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-500/40 scale-[1.02]'
-                      : 'bg-surface/80 border-border/80 hover:border-gray-600 hover:bg-surface'
+                      ? 'bg-indigo-600/25 border-indigo-500 shadow-xl shadow-indigo-500/25 ring-2 ring-indigo-500/50 scale-[1.03]'
+                      : 'bg-surface/80 border-border/80 hover:border-gray-500 hover:bg-surface'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -296,7 +296,7 @@ export const LiveClassroomSimulation: React.FC = () => {
         </div>
 
         {/* Right 5 Cols: Selected Student Live Inspection Pane */}
-        <div className="lg:col-span-5 bg-surface rounded-2xl border border-border p-5 space-y-4 shadow-xl">
+        <div className="lg:col-span-5 bg-surface rounded-2xl border border-border p-5 space-y-4 shadow-xl card-3d-tilt">
           <div className="flex items-center justify-between pb-3 border-b border-border">
             <div className="flex items-center gap-2">
               <Laptop className="w-4 h-4 text-indigo-400" />
